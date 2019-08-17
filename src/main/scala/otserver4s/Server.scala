@@ -1,0 +1,58 @@
+package otserver4s
+
+import scala.util.{ Try, Failure }
+import org.apache.log4j.Logger
+import otserver4s.login.LoginRequest
+import otserver4s.login.Mundo.INSTANCE.{ porta => PORTA }
+
+object Client { val logger = Logger.getLogger(classOf[Client]) }
+case class Client(socket: java.net.Socket, 
+  private var loop: Boolean = true) extends Thread {
+
+  def packetRecebido() = {
+    val tamanhoPacket = Packet.lerInt16(socket.getInputStream)
+    val tipoRequest = TipoRequest.tipoPorCodigo(Packet.lerByte(socket.getInputStream))
+    Client.logger.debug(s"Packet recebido - Tamanho: $tamanhoPacket - $tipoRequest")
+    val packet = tipoRequest match {
+      case TipoRequest.LOGIN_REQUEST => {
+        loop = false
+        LoginRequest(socket).criarPacketLogin
+      }
+      case TipoRequest.PROCESSAR_LOGIN => Packet()
+      case _ => Packet()
+    }
+    packet.enviar(socket)
+  }
+  
+  override def run = while(loop) 
+    Try(socket.getInputStream.available > 0) match {
+      case Failure(ex) => {
+        socket.close
+        loop = false
+        Client.logger.error(s"Ocorreu um erro ao processar requisição: ${ex.getMessage}")
+        ex.printStackTrace
+      }
+      case _ => packetRecebido
+    }
+
+}
+
+import otserver4s.database.ConexaoBancoDados.criarConexao
+import otserver4s.database.{ ConexaoBancoDados, Conta, Personagem }
+
+object Server extends App {
+  case class GameServer(logger: Logger = Logger.getLogger(classOf[GameServer]))
+  
+  val conexao = criarConexao
+  Conta.criarTabelaSeNaoExistir(conexao)
+  if(Conta.contarTodos(conexao) < 1)
+    Conta.persistirNova(123, "abc", conexao)
+  Personagem.criarTabelaSeNaoExistir(conexao)
+  if(Personagem.contarTodos(conexao) < 1)
+    Personagem.persistirNovo(123, "Maia", conexao)
+  conexao.close
+  
+  val server = new java.net.ServerSocket(PORTA)
+  GameServer().logger.info(s"Servidor iniciado na porta $PORTA...")
+  while(true) Client(server.accept).start
+}

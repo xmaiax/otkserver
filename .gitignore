@@ -1,0 +1,9 @@
+.classpath
+.externalToolBuilders/
+.project
+.settings/
+RELEASE/
+arquivos/
+maven-eclipse.xml
+target/
+.cache-main
