@@ -25,6 +25,12 @@ class Conta {
     this
   }
   
+  override def toString = 
+    s"Conta(number: $number, hashSenha: $hashSenha, " +
+    s"premium: $diasPremiumRestantes" +
+    (if(personagens != null) s", personagens: ${personagens.length}" 
+     else "") + ")" 
+  
 }
 
 object Conta {
@@ -47,22 +53,29 @@ object Conta {
       }
       case (_, _) => throw new Exception("Conta invalida.")
     }
-  def apply(loginRequest: LoginRequest, conexao: ConnectionSource): Conta =
-    (loginRequest.accountNumber, loginRequest.password) match {
-      case (None, None) => throw new Exception("Favor inserir o account number e a senha.")
-      case (None, Some(y)) => throw new Exception("Favor inserir o account number.")
-      case (Some(x), None) => throw new Exception("Favor inserir a senha.")
-      case (Some(x), Some(y)) => {
-        val dao = criarDAO(conexao)
-        Option(dao.queryForId(loginRequest.accountNumber.get)) match {
-          case None => throw new Exception("Nenhuma conta encontrada.")
-          case Some(account) =>
-            if(loginRequest.password.get == account.hashSenha) 
-              account.adicionarPersonagens(
-                Personagem.listarPersonagensPorAccount(account.number, conexao))
-            else throw new Exception("Senha incorreta.")
+  def apply(loginRequest: LoginRequest, conexao: ConnectionSource, 
+      carregarPersonagens: Boolean = true): Conta =
+    loginRequest.versao match {
+      case LoginRequest.VERSAO => {
+        (loginRequest.accountNumber, loginRequest.password) match {
+          case (None, None) => throw new Exception("Favor inserir o account number e a senha.")
+          case (None, Some(y)) => throw new Exception("Favor inserir o account number.")
+          case (Some(x), None) => throw new Exception("Favor inserir a senha.")
+          case (Some(x), Some(y)) => {
+            val dao = criarDAO(conexao)
+            Option(dao.queryForId(loginRequest.accountNumber.get)) match {
+              case None => throw new Exception("Nenhuma conta encontrada.")
+              case Some(account) =>
+                if(loginRequest.password.get == account.hashSenha) 
+                  if(carregarPersonagens)account.adicionarPersonagens(
+                    Personagem.listarPersonagensPorAccount(account.number, conexao))
+                  else account
+                else throw new Exception("Senha incorreta.")
+            }
+          }
         }
       }
+      case _ => throw new Exception("Versao incompativel.")
     }
   
 }

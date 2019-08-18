@@ -126,6 +126,8 @@ class Personagem {
   
   var canalPvt: Canal = null
   
+  override def toString = s"Personagem(nome: $nome)"
+  
 }
 object Personagem {
   def criarTabelaSeNaoExistir(conexao: ConnectionSource) = 
@@ -154,4 +156,11 @@ object Personagem {
   }
   def listarPersonagensPorAccount(accountNumber: Integer, conexao: ConnectionSource) =
     criarDAO(conexao).queryForEq("accountNumber", accountNumber).asScala.toList
+  def buscarPersonagemPorNomeEAccount(nome: String, accountNumber: Integer, 
+      conexao: ConnectionSource) = {
+    val p = new Personagem
+    p.accountNumber = accountNumber
+    p.nome = nome
+    criarDAO(conexao).queryForMatching(p).asScala.headOption
+  }
 }
