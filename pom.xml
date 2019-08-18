@@ -7,7 +7,7 @@
 	<groupId>otserver4s</groupId>
 	<artifactId>otserver4s</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0</version>
+	<version>pre-alpha</version>
 
 	<properties>
 		<jdk.version>1.8</jdk.version>

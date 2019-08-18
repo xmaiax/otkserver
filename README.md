@@ -41,8 +41,8 @@ Essa pasta RELEASE possui o OTServer já compilado e é o suficiente para rodar 
 
 ###### Rodar
 * Abra uma CLI na pasta RELEASE;
-* Chame o comando: `java -jar otserver4s-1.0.jar` (para a versão `1.0`, por exemplo);
-* Espere a mensagem `Servidor iniciado na porta ????...` (onde `???` é a porta que o servidor está rodando);
+* Chame o comando: `java -jar otserver4s-pre-alpha.jar` (para a versão `pre-alpha`, por exemplo);
+* Espere a mensagem `Servidor iniciado na porta ????...` (onde `????` é a porta que o servidor está rodando);
 * Pronto, seu servidor já está rodando!
 
 ###### Client local (sem IP Changer)

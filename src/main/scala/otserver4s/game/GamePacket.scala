@@ -1,53 +1,18 @@
 package otserver4s.game
 
-class GamePacket {
+import otserver4s.{ Client, Conectados, Packet }
+import otserver4s.login.LoginRequest
+
+object PacketInGame {
   
-}
-
-/*
-import java.io.{ InputStream, OutputStream }
-
-case class GameProtocol(
-  input: InputStream,
-  output: OutputStream,
-  var jogador: Personagem = null, 
-  var isLogado: Boolean = false) {
-  
-  def efetuarLogin = {
-    //if(!isLogado && jogador == null) {
-      val sistemaOperacional = 
-        SistemaOperacional.lerSistemaOperacional(Packet.lerInt16(input)) 
-      val versao = Packet.lerInt16(input)
-      val isGM = Packet.lerByte(input) == 1
-      val accountNumber = Packet.lerInt16(input)
-      Packet.pularLeitura(input, Packet.lerInt16(input).toLong)
-      val nome = Packet.lerString(input).get
-      val senha = Packet.lerString(input)
-      val protocoloLogin = ProtocoloLogin(
-        sistemaOperacional, versao, Account(Option(accountNumber), senha))
-      val conexao = ConexaoBancoDados.criarConexao
-      jogador = Personagem.buscarPersonagem(protocoloLogin, isGM, nome, conexao)
-      conexao.close
-      
-      val packet = Packet()
-
-      packet.escreverByte(TipoRequest.PROCESSAR_LOGIN.codigo)
-      packet.escreverInt32(jogador.idPersonagem + 0x10000000)
-      packet.escreverByte(0x32)
-      packet.escreverByte(0x00)
-      packet.escreverByte(0x00)
-      
-      packet.escreverByte(0x64)
-      packet.escreverInt16(jogador.posicaox)
-      packet.escreverInt16(jogador.posicaoy)
-      packet.escreverByte(jogador.posicaoz)
-
+  def iniciarConexaoAtiva(client: Client): Packet = {
+    val packet = Packet()
+    client.jogador.map(jogador => {
+      Conectados.adicionar(client)
       var pular = -1
-      
       def descricaoPiso(piso: Piso) = {
         // TODO Acertar essa implementação depois
       }
-      
       def descricaoChao(x: Int, y: Int, z: Int, 
           comp: Short, alt: Short, offset: Int) = {
         for(nx <- 0 until comp) for(ny <- 0 until alt)
@@ -76,7 +41,6 @@ case class GameProtocol(
           }
         }
       }
-      
       def descricaoMapa(x: Int, y: Int, z: Byte, 
           comp: Short, alt: Short) = {
         var inicioZ = 7
@@ -97,16 +61,18 @@ case class GameProtocol(
           packet.escreverByte(0xff.toByte)
         }
       }
+      packet.escreverByte(LoginRequest.CODIGO_PACKET_PROCESSAR_LOGIN_SUCESSO)
+      packet.escreverInt32(jogador.idPersonagem)
+      packet.escreverInt16(0x32) // Velocidade de renderização do client
+      packet.escreverByte(0x01) // Pode reportar erros
       
-      descricaoMapa(
-        jogador.posicaox - 8, jogador.posicaoy - 6, 
-        jogador.posicaoz, 18, 14)
-      
-      packet.escreverByte(0x83.toByte)
+      packet.escreverByte(0x64) // Adicionar descricao do mapa
       packet.escreverInt16(jogador.posicaox)
       packet.escreverInt16(jogador.posicaoy)
       packet.escreverByte(jogador.posicaoz)
-      packet.escreverByte(0x0b.toByte)
+      descricaoMapa(
+        jogador.posicaox - 8, jogador.posicaoy - 6, 
+        jogador.posicaoz, 18, 14)
       
       Slot.values.foreach(slot => {
         packet.escreverByte(0x79)
@@ -124,7 +90,7 @@ case class GameProtocol(
       packet.escreverInt16(jogador.manaMaxima)
       packet.escreverByte(jogador.magicLevel)
       packet.escreverByte(0) // % ML
-      packet.escreverByte(jogador.alma)      
+      packet.escreverByte(jogador.alma)
       
       packet.escreverByte(0xa1.toByte)
       packet.escreverByte(jogador.fistLevel)
@@ -142,24 +108,51 @@ case class GameProtocol(
       packet.escreverByte(jogador.fishingLevel)
       packet.escreverByte(0x00)
       
+      packet.escreverByte(0x83.toByte)
+      packet.escreverInt16(jogador.posicaox)
+      packet.escreverInt16(jogador.posicaoy)
+      packet.escreverByte(jogador.posicaoz)
+      packet.escreverByte(0x04)
+      
       packet.escreverByte(0x82.toByte)
       packet.escreverByte(0xff.toByte)
       packet.escreverByte(215.toByte)
-      
-      packet.escreverByte(0x8d.toByte)
-      packet.escreverInt32(jogador.idPersonagem + 0x10000000)
-      packet.escreverByte(0xff.toByte)
-      packet.escreverByte(215.toByte)
-      
-      isLogado = true
-      packet
-    /*}
-    else {
-      println("PASSOU!")
-      val packet = Packet()
-      packet
-    }*/
+    })
+    packet
+  }
+  
+  def manterConexaoAtiva(client: Client) = {
+    Packet.lerByte(client.socket.getInputStream) match {
+      case 0x14 => client.desconectar()
+      case 0x65 => {
+        // TODO: Mover para norte
+      }
+      case 0x66 => {
+        // TODO: Mover para leste
+      }
+      case 0x67 => {
+        // TODO: Mover para sul
+      }
+      case 0x68 => {
+        // TODO: Mover para oeste
+      }
+      case 0x6A => {
+        // TODO: Mover para nordeste
+      }
+      case 0x6B => {
+        // TODO: Mover para sudeste
+      }
+      case 0x6C => {
+        // TODO: Mover para sudoeste
+      }
+      case 0x6D => {
+        // TODO: Mover para nordeste
+      }
+      case 0x96 => {
+        // TODO: Falar
+      }
+      case _ => Unit
+    }
   }
   
 }
-*/

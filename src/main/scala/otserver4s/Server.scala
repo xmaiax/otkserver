@@ -2,13 +2,15 @@ package otserver4s
 
 import scala.util.{ Try, Failure }
 import org.apache.log4j.Logger
+import otserver4s.database.Personagem
+import otserver4s.game.PacketInGame.{ iniciarConexaoAtiva, manterConexaoAtiva }
 import otserver4s.login.LoginRequest
 import otserver4s.login.Mundo.INSTANCE.{ porta => PORTA }
 
 object Conectados {
   private var clientsConectados = new scala.collection.mutable.ListBuffer[Client]()
   private def buscarPorNome(nome: String) =
-    clientsConectados.filter(_.jogador.get == nome).headOption
+    clientsConectados.filter(_.jogador.get.nome == nome).headOption
   def getJogadoresOnline = clientsConectados.toList.map(_.jogador.get)
   def adicionar(client: Client) = clientsConectados += client
   def remover(client: Client) = {
@@ -22,42 +24,51 @@ object Conectados {
 
 object Client { val logger = Logger.getLogger(classOf[Client]) }
 case class Client(socket: java.net.Socket,
-  var jogador: Option[String] = None,
+  var jogador: Option[Personagem] = None,
   var loop: Boolean = true) extends Thread {
 
   def packetRecebido() = {
+    loop = false
     val tamanhoPacket = Packet.lerInt16(socket.getInputStream)
     val tipoRequest = TipoRequest.tipoPorCodigo(Packet.lerByte(socket.getInputStream))
     Client.logger.debug(s"Packet recebido - Tamanho: $tamanhoPacket - $tipoRequest")
     val packet = tipoRequest match {
       case TipoRequest.LOGIN_REQUEST => {
-        loop = false
         LoginRequest(socket, false).criarPacketLogin
       }
       case TipoRequest.PROCESSAR_LOGIN => {
         val loginRequest = LoginRequest(socket, true)
-        jogador = loginRequest.nomePersonagem
-        loginRequest.processarLogin
+        jogador = loginRequest.personagem
+        loginRequest.processarLogin.getOrElse(iniciarConexaoAtiva(this))
       }
-      case _ => Packet()
+      case _ => {
+        Client.logger.error(s"Request desconhecido")
+        Packet()
+      }
     }
     packet.enviar(socket)
-    if(loop && jogador.isDefined) {
-      Conectados.adicionar(this)
-    }
+    while(loop && jogador.isDefined) manterConexaoAtiva(this)
+    desconectar(new java.net.SocketException("Socket is closed"))
   }
   
-  private def desconectar(ex: Throwable) = {
-    Conectados.remover(this)
+  def desconectar(ex: Throwable = null) = {
     socket.close
-    if(ex.getClass == classOf[java.net.SocketException] && 
-      ex.getMessage == "Socket is closed") 
-      Client.logger.debug(if(this.jogador.isEmpty) 
-        "Client desconectado sem login" else s"${jogador.get} se desconectou...")
-    else {
-      Client.logger.error(s"Ocorreu um erro ao processar packet: ${ex.getMessage}")
-      ex.printStackTrace
+    Option(ex) match {
+      case None => Unit
+      case Some(ex) if (
+        ex.getClass == classOf[java.net.SocketException] && 
+        ex.getMessage == "Socket is closed") => 
+          Client.logger.debug(
+            if(jogador.isEmpty) "Client desconectado sem login" 
+            else s"${jogador.get.nome} se desconectou..."
+          )
+      case _ => {
+        Client.logger.error(
+          s"Ocorreu um erro ao processar packet: ${ex.getMessage}")
+        ex.printStackTrace
+      }
     }
+    Conectados.remover(this)
     loop = false
     jogador = None
   }

@@ -22,26 +22,13 @@ class Personagem {
   @DatabaseField(canBeNull = false)
   var nome: String = _
   
-  @DatabaseField(canBeNull = false)
-  var capacidade: Short = _
-  
-  @DatabaseField(canBeNull = false)
-  var exp: Long = _
-  
-  @DatabaseField(canBeNull = false)
-  var vida: Short = _
-  
-  @DatabaseField(canBeNull = false)
-  var mana: Short = _
-  
-  @DatabaseField(canBeNull = false)
-  var vidaMaxima: Short = _
-  
-  @DatabaseField(canBeNull = false)
-  var manaMaxima: Short = _
-  
-  @DatabaseField(canBeNull = false)
-  var alma: Byte = _
+  var capacidade: Short = 400
+  var exp: Long = 0
+  var vida: Short = 150
+  var mana: Short = 0
+  var vidaMaxima: Short = 150
+  var manaMaxima: Short = 0
+  var alma: Byte = 100
   
   def posicao(pos: Posicao = Posicao(posicaox, posicaoy, posicaoz)) = {
     posicaox = pos.x
@@ -50,17 +37,11 @@ class Personagem {
     Posicao(posicaox, posicaoy, posicaoz)
   }
   
-  @DatabaseField(canBeNull = false)
-  var posicaox: Short = _
-  
-  @DatabaseField(canBeNull = false)
-  var posicaoy: Short = _
-  
-  @DatabaseField(canBeNull = false)
-  var posicaoz: Byte = _
+  var posicaox: Short = 50
+  var posicaoy: Short = 50
+  var posicaoz: Byte = 7
 
-  @DatabaseField(canBeNull = false, columnName = "direcao")
-  var _direcao: Byte = _
+  var _direcao: Byte = Direcao.SUL.codigo
   def direcao(dir: Direcao = Direcao(_direcao)) = {
     _direcao = dir.codigo
     dir
@@ -78,26 +59,14 @@ class Personagem {
     outf
   }
   
-  @DatabaseField(canBeNull = false)
-  var tipoOutfit: Byte = _
+  var tipoOutfit: Byte = (128 & 0xff).toByte
+  var cabecaOutfit: Byte = 10
+  var corpoOutfit: Byte = 20
+  var pernasOutfit: Byte = 30
+  var pesOutfit: Byte = 40
+  var extraOutfit: Byte = Slot.ULTIMO.codigo
   
-  @DatabaseField(canBeNull = false)
-  var cabecaOutfit: Byte = _ 
-  
-  @DatabaseField(canBeNull = false)
-  var corpoOutfit: Byte = _
-  
-  @DatabaseField(canBeNull = false)
-  var pernasOutfit: Byte = _
-  
-  @DatabaseField(canBeNull = false)
-  var pesOutfit: Byte = _
-  
-  @DatabaseField(canBeNull = false)
-  var extraOutfit: Byte = _
-
-  @DatabaseField(canBeNull = false, columnName = "caveira")
-  var _caveira: Byte = _
+  var _caveira: Byte = Caveira.NENHUMA.codigo
   def caveira(cav: Caveira = Caveira(_caveira)) = {
     _caveira = cav.codigo
     cav
@@ -113,9 +82,7 @@ class Personagem {
   var fishingLevel: Byte = 10
   
   var luz: Luz = Luz(255, 215)
-  
   var escudo: Escudo = Escudo.NENHUM
-
   var inventario: Array[Item] = {
     val invtr = Array.ofDim[Item](Slot.values.length)
     for(i <- 0 until invtr.length) invtr(i) = null
@@ -123,10 +90,9 @@ class Personagem {
   }
   
   var piso: Piso = null
-  
   var canalPvt: Canal = null
   
-  override def toString = s"Personagem(nome: $nome)"
+  override def toString = s"Personagem(id: $idPersonagem, nome: $nome, acc: $accountNumber)"
   
 }
 object Personagem {
@@ -142,16 +108,6 @@ object Personagem {
     val personagem = new Personagem
     personagem.accountNumber = accountNumber
     personagem.nome = nome
-    personagem.capacidade = 400
-    personagem.exp = 0
-    personagem.vida = 150
-    personagem.mana = 0
-    personagem.vidaMaxima = 150
-    personagem.manaMaxima = 0
-    personagem.alma = 100
-    personagem.posicao(Posicao(50, 50, 7))
-    personagem.direcao(Direcao.SUL)
-    personagem.outfit(Outfit((128 & 0xff).toByte, 10, 20, 30, 40, Slot.ULTIMO.codigo))
     criarDAO(conexao).create(personagem)
   }
   def listarPersonagensPorAccount(accountNumber: Integer, conexao: ConnectionSource) =

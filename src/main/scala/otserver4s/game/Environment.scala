@@ -1,5 +1,7 @@
 package otserver4s.game
 
+import scala.util.Try
+
 case class TipoMensagem(codigo: Byte)
 object TipoMensagem {
   val AMARELA = TipoMensagem(0x01)
@@ -106,13 +108,13 @@ object Slot {
   val PERNAS = Slot(0x07)
   val PES = Slot(0x08)
   val ANEL = Slot(0x09)
-  val ACESSORIO = Slot(0x0a)
+  val EXTRA = Slot(0x0a)
   val ULTIMO = Slot(0x0b)
   val values = List(
     CABECA, AMULETO, MOCHILA,
     ARMADURA, MAO_DIREITA, 
     MAO_ESQUERDA, PERNAS, PES, 
-    ANEL, ACESSORIO, ULTIMO
+    ANEL, EXTRA, ULTIMO
   )
   def getByCodigo(codigo: Byte) =
     values.filter(_.codigo == codigo).head
@@ -164,5 +166,5 @@ object Mapa {
       mapa += (Posicao(x.toShort, y.toShort, 7) -> Piso.GRAMA)
     mapa
   }
-  def getPiso(posicao: Posicao) = mapa(posicao)
+  def getPiso(posicao: Posicao) = Try(mapa(posicao)).getOrElse(null)
 }

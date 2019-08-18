@@ -3,12 +3,12 @@ package otserver4s
 import scala.util.{ Try, Success, Failure }
 import org.apache.log4j.Logger
 
-case class ConfiguracoesOtServer(properties: java.util.Properties)
-object ConfiguracoesOtServer {
-  private val logger: Logger = Logger.getLogger(classOf[ConfiguracoesOtServer])
-  val INSTANCE = ConfiguracoesOtServer("otserver.properties")
-  def apply(arquivoProperties: String): ConfiguracoesOtServer = 
-    Try(ConfiguracoesOtServer.getClass.getClassLoader
+case class ConfiguracoesOTServer(properties: java.util.Properties)
+object ConfiguracoesOTServer {
+  private val logger: Logger = Logger.getLogger(classOf[ConfiguracoesOTServer])
+  val INSTANCE = ConfiguracoesOTServer("otserver.properties")
+  def apply(arquivoProperties: String): ConfiguracoesOTServer = 
+    Try(ConfiguracoesOTServer.getClass.getClassLoader
         .getResourceAsStream(arquivoProperties)
         .asInstanceOf[java.io.InputStream]) match {
     case Success(input) => {
@@ -16,7 +16,7 @@ object ConfiguracoesOtServer {
       properties.load(input)
       logger.debug("Configurações carregadas com sucesso!")
       logger.trace(properties)
-      ConfiguracoesOtServer(properties)
+      ConfiguracoesOTServer(properties)
     }
     case Failure(ex) => {
       logger.fatal(s"Ocorreu um erro ao carregar configurações: ${ex.getMessage}")
@@ -28,5 +28,5 @@ object ConfiguracoesOtServer {
 }
 object PropriedadeConfiguracoes {
   def apply(chave: String): String = 
-    ConfiguracoesOtServer.INSTANCE.properties.getProperty(chave)
+    ConfiguracoesOTServer.INSTANCE.properties.getProperty(chave)
 }

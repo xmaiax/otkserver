@@ -21,9 +21,7 @@ case class MOTD(mensagem: String, codigo: Byte = 0x01)
 case class Mundo(nome: String, porta: Int, host: String, motd: MOTD)
 object Mundo {
   final val INSTANCE = Mundo(
-    PConf("mundo"),
-    PConf("porta").toInt,
-    PConf("host"),
-    MOTD(PConf("motd"))
+    PConf("mundo"), PConf("porta").toInt,
+    PConf("host"), MOTD(PConf("motd"))
   )
 }
