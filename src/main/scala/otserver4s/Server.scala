@@ -1,6 +1,6 @@
 package otserver4s
 
-import java.net.{ SocketException => ScktExcp }
+import java.net.SocketException
 import scala.util.{ Try, Failure }
 import org.apache.log4j.Logger
 import otserver4s.database.Personagem
@@ -37,9 +37,7 @@ case class Client(socket: java.net.Socket,
     val tipoRequest = TipoRequest.tipoPorCodigo(Packet.lerByte(socket.getInputStream))
     Client.logger.debug(s"Packet recebido - Tamanho: $tamanhoPacket - $tipoRequest")
     val packet = tipoRequest match {
-      case TipoRequest.LOGIN_REQUEST => {
-        LoginRequest(socket, false).criarPacketLogin
-      }
+      case TipoRequest.LOGIN_REQUEST => LoginRequest(socket, false).criarPacketLogin
       case TipoRequest.PROCESSAR_LOGIN => {
         val loginRequest = LoginRequest(socket, true)
         jogador = loginRequest.personagem
@@ -52,14 +50,13 @@ case class Client(socket: java.net.Socket,
     }
     packet.enviar(socket)
     while(loop && jogador.isDefined) manterConexaoAtiva(this)
-    desconectar(new ScktExcp(Client.MENSAGEM_SOCKET_FECHADO))
+    desconectar(new SocketException(Client.MENSAGEM_SOCKET_FECHADO))
   }
   
   def desconectar(ex: Throwable = null) = {
-    socket.close
     Option(ex) match {
       case None => Unit
-      case Some(ex) if (ex.getClass   == classOf[ScktExcp] && 
+      case Some(ex) if (ex.getClass   == classOf[SocketException] && 
                         ex.getMessage == Client.MENSAGEM_SOCKET_FECHADO) => 
           Client.logger.debug(
             if(jogador.isEmpty) "Client desconectado sem login" 

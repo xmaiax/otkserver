@@ -43,7 +43,7 @@ case class Packet(
     posicao = 0
     escreverInt16(tamanho)
     val pw = new java.io.PrintWriter(socket.getOutputStream, true)
-    pw.write(buffer.splitAt(tamanho)._1.map(_.toChar))
+    pw.write(buffer.map(_.toChar))
     pw.close
   }
 }

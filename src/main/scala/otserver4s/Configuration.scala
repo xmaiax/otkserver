@@ -30,3 +30,5 @@ object PropriedadeConfiguracoes {
   def apply(chave: String): String = 
     ConfiguracoesOTServer.INSTANCE.properties.getProperty(chave)
 }
+case class OTServerLoginException(mensagemParametrizada: String) 
+  extends Exception(PropriedadeConfiguracoes(mensagemParametrizada))

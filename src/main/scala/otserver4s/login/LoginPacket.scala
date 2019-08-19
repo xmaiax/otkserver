@@ -2,7 +2,8 @@ package otserver4s.login
 
 import java.net.Socket
 import scala.util.{ Try, Success, Failure }
-import otserver4s.{ Packet, PropriedadeConfiguracoes => PConf }
+import otserver4s.{ OTServerLoginException, Packet, 
+  PropriedadeConfiguracoes => PConf }
 import otserver4s.database.{ Conta, Personagem }
 import otserver4s.utils.MD5Utils
 
@@ -38,7 +39,11 @@ case class LoginRequest(
         packet.escreverInt16(loginOk.diasPremiumRestantes.toShort)
         packet
       }
-      case Failure(ex) => Packet.criarPacketErroLogin(ex.getMessage)
+      case Failure(ex: OTServerLoginException) => Packet.criarPacketErroLogin(ex.getMessage)
+      case Failure(ex) => {
+        otserver4s.Client.logger.error(s"Erro não tratado no login: ${ex.getMessage}")
+        Packet.criarPacketErroLogin(ex.getMessage)
+      }
     }
     conexao.close
     loginPacket    
