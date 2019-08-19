@@ -2,7 +2,7 @@ package otserver4s.login
 
 import java.net.Socket
 import scala.util.{ Try, Success, Failure }
-import otserver4s.Packet
+import otserver4s.{ Packet, PropriedadeConfiguracoes => PConf }
 import otserver4s.database.{ Conta, Personagem }
 import otserver4s.utils.MD5Utils
 
@@ -21,10 +21,10 @@ case class LoginRequest(
         otserver4s.Client.logger.debug(
           s"Conta encontrada, carregando lista de personagens: $loginOk")
         val packet = Packet()
-        packet.escreverByte(LoginRequest.CODIGO_PACKET_LOGIN_SUCESSO)
+        packet.escreverByte(Packet.CODIGO_PACKET_LOGIN_SUCESSO)
         packet.escreverString(
           s"${Mundo.INSTANCE.motd.codigo}\n${Mundo.INSTANCE.motd.mensagem}")
-        packet.escreverByte(LoginRequest.MARCACAO_PACKET_INICIO_LISTA_PERSONAGENS)
+        packet.escreverByte(Packet.MARCACAO_PACKET_INICIO_LISTA_PERSONAGENS)
         packet.escreverByte(loginOk.personagens.length.toByte)
         loginOk.personagens.foreach(personagem => {
           packet.escreverString(personagem.nome)
@@ -38,12 +38,7 @@ case class LoginRequest(
         packet.escreverInt16(loginOk.diasPremiumRestantes.toShort)
         packet
       }
-      case Failure(ex) => {
-        val packet = Packet()
-        packet.escreverByte(LoginRequest.CODIGO_PACKET_LOGIN_ERRO)
-        packet.escreverString(ex.getMessage)
-        packet
-      }
+      case Failure(ex) => Packet.criarPacketErroLogin(ex.getMessage)
     }
     conexao.close
     loginPacket    
@@ -57,36 +52,18 @@ case class LoginRequest(
         Personagem.buscarPersonagemPorNomeEAccount(
             this.personagem.get.nome, loginOk.number, conexao) match {
           case Some(personagem) => 
-            if (otserver4s.Conectados.verificarSeConectado(personagem.nome)) {
-              val packet = Packet()
-              packet.escreverByte(LoginRequest.CODIGO_PACKET_PROCESSAR_LOGIN_ERRO)
-              packet.escreverString("Personagem ja conectado.")
-              Some(packet)
-            }
-            else {
-              otserver4s.Client.logger.debug(s"Login realizado com sucesso: $personagem")
-              // FIXME: Retornar None quando a implementação do IN-GAME estiver apresentável
-              val packet = Packet()
-              packet.escreverByte(LoginRequest.CODIGO_PACKET_PROCESSAR_LOGIN_ERRO)
-              packet.escreverString("In-game nao implementado...")
-              Some(packet)
-              // None
-            }
-          case None => {
-            val packet = Packet()
-            packet.escreverByte(LoginRequest.CODIGO_PACKET_PROCESSAR_LOGIN_ERRO)
-            packet.escreverString(
-              s"Personagem ${this.personagem.get.nome} nao pertence a conta.")
-            Some(packet)
-          }
+            if (otserver4s.Conectados.verificarSeConectado(personagem.nome))
+              Some(Packet.criarPacketProcessarLoginErro(
+                PConf("mensagem.login.erro.personagem.ja.conectado")))
+            // TODO: Retornar None quando a implementação do IN-GAME estiver apresentável
+            // FIXME: Retorno NÃO deve ser Option
+            else Some(Packet.criarPacketProcessarLoginErro("In-game nao implementado..."))
+            //----
+          case None => Some(Packet.criarPacketProcessarLoginErro(
+                         PConf("mensagem.login.erro.personagem.outra.conta")))
         }
       }
-      case Failure(ex) => {
-        val packet = Packet()
-        packet.escreverByte(LoginRequest.CODIGO_PACKET_PROCESSAR_LOGIN_ERRO)
-        packet.escreverString(ex.getMessage)
-        Some(packet)
-      }
+      case Failure(ex) => Some(Packet.criarPacketProcessarLoginErro(ex.getMessage))
     }
     conexao.close
     loginPacket
@@ -94,11 +71,6 @@ case class LoginRequest(
 }
 object LoginRequest {
   val VERSAO = 760
-  val MARCACAO_PACKET_INICIO_LISTA_PERSONAGENS: Byte = 0x64
-  val CODIGO_PACKET_LOGIN_SUCESSO: Byte = 0x14
-  val CODIGO_PACKET_LOGIN_ERRO: Byte = 0x0a
-  val CODIGO_PACKET_PROCESSAR_LOGIN_SUCESSO: Byte = 0x0a
-  val CODIGO_PACKET_PROCESSAR_LOGIN_ERRO: Byte = 0x14
   def apply(socket: Socket, processarLogin: Boolean): LoginRequest = {
     val sistemaOperacional = SistemaOperacional.lerSistemaOperacional(
       Packet.lerInt16(socket.getInputStream)) 

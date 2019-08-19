@@ -43,11 +43,16 @@ case class Packet(
     posicao = 0
     escreverInt16(tamanho)
     val pw = new java.io.PrintWriter(socket.getOutputStream, true)
-    pw.write(buffer.map(_.toChar))
+    pw.write(buffer.splitAt(tamanho)._1.map(_.toChar))
     pw.close
   }
 }
 object Packet {
+  val MARCACAO_PACKET_INICIO_LISTA_PERSONAGENS: Byte = 0x64
+  val CODIGO_PACKET_LOGIN_SUCESSO: Byte = 0x14
+  val CODIGO_PACKET_LOGIN_ERRO: Byte = 0x0a
+  val CODIGO_PACKET_PROCESSAR_LOGIN_SUCESSO: Byte = 0x0a
+  val CODIGO_PACKET_PROCESSAR_LOGIN_ERRO: Byte = 0x14
   def lerByte(input: InputStream) = input.read
   def lerInt16(input: InputStream) = lerByte(input) | lerByte(input) << 8
   def lerInt32(input: InputStream) = lerByte(input)       | lerByte(input) << 8 |
@@ -59,4 +64,16 @@ object Packet {
       .map(new String(_))
   }
   def pularLeitura(input: InputStream, n: Long) = input.skip(n)
+  private def criarPacketGenericoMensagem(codigo: Byte, mensagem: String) = {
+    val packet = Packet()
+    packet.escreverByte(codigo)
+    packet.escreverString(mensagem)
+    packet
+  }
+  def criarPacketErroLogin(mensagemErro: String) = 
+    Packet.criarPacketGenericoMensagem(
+      Packet.CODIGO_PACKET_LOGIN_ERRO, mensagemErro)
+  def criarPacketProcessarLoginErro(mensagemErro: String) = 
+    Packet.criarPacketGenericoMensagem(
+      Packet.CODIGO_PACKET_PROCESSAR_LOGIN_ERRO, mensagemErro)
 }

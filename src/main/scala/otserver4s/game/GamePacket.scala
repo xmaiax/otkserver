@@ -1,7 +1,6 @@
 package otserver4s.game
 
 import otserver4s.{ Client, Conectados, Packet }
-import otserver4s.login.LoginRequest
 
 object PacketInGame {
   
@@ -61,7 +60,7 @@ object PacketInGame {
           packet.escreverByte(0xff.toByte)
         }
       }
-      packet.escreverByte(LoginRequest.CODIGO_PACKET_PROCESSAR_LOGIN_SUCESSO)
+      packet.escreverByte(Packet.CODIGO_PACKET_PROCESSAR_LOGIN_SUCESSO)
       packet.escreverInt32(jogador.idPersonagem)
       packet.escreverInt16(0x32) // Velocidade de renderização do client
       packet.escreverByte(0x01) // Pode reportar erros

@@ -1,5 +1,6 @@
 package otserver4s
 
+import java.net.{ SocketException => ScktExcp }
 import scala.util.{ Try, Failure }
 import org.apache.log4j.Logger
 import otserver4s.database.Personagem
@@ -22,7 +23,10 @@ object Conectados {
   def verificarSeConectado(nome: String) = buscarPorNome(nome).isDefined
 }
 
-object Client { val logger = Logger.getLogger(classOf[Client]) }
+object Client {
+  val MENSAGEM_SOCKET_FECHADO = "Socket is closed"
+  val logger = Logger.getLogger(classOf[Client]) 
+}
 case class Client(socket: java.net.Socket,
   var jogador: Option[Personagem] = None,
   var loop: Boolean = true) extends Thread {
@@ -48,20 +52,18 @@ case class Client(socket: java.net.Socket,
     }
     packet.enviar(socket)
     while(loop && jogador.isDefined) manterConexaoAtiva(this)
-    desconectar(new java.net.SocketException("Socket is closed"))
+    desconectar(new ScktExcp(Client.MENSAGEM_SOCKET_FECHADO))
   }
   
   def desconectar(ex: Throwable = null) = {
     socket.close
     Option(ex) match {
       case None => Unit
-      case Some(ex) if (
-        ex.getClass == classOf[java.net.SocketException] && 
-        ex.getMessage == "Socket is closed") => 
+      case Some(ex) if (ex.getClass   == classOf[ScktExcp] && 
+                        ex.getMessage == Client.MENSAGEM_SOCKET_FECHADO) => 
           Client.logger.debug(
             if(jogador.isEmpty) "Client desconectado sem login" 
-            else s"${jogador.get.nome} se desconectou..."
-          )
+            else s"${jogador.get.nome} foi desconectado...")
       case _ => {
         Client.logger.error(
           s"Ocorreu um erro ao processar packet: ${ex.getMessage}")
@@ -83,7 +85,6 @@ case class Client(socket: java.net.Socket,
 
 import otserver4s.database.ConexaoBancoDados.criarConexao
 import otserver4s.database.{ ConexaoBancoDados, Conta, Personagem }
-
 object Server extends App {
   case class GameServer(logger: Logger = Logger.getLogger(classOf[GameServer]))
   
