@@ -4,10 +4,10 @@
 						http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>otserver4kotlin</groupId>
-	<artifactId>otserver4kotlin</artifactId>
+	<groupId>otkserver</groupId>
+	<artifactId>otkserver</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0</version>
+	<version>pre-alpha</version>
 
 	<properties>
 		<jdk.version>1.8</jdk.version>

@@ -40,7 +40,9 @@ Tela de Login (busca de personagens + MOTD + conexão com banco) funcionando per
 
 Essa pasta RELEASE possui o OTServer já compilado e é o suficiente para rodar em qualquer computador com a JRE 8 instalada.
 
-###### Rodar
+O projeto compilado pesa, aproximadamente, 5MB.
+
+##### Rodar
 * Abra uma CLI na pasta RELEASE;
 * Chame o comando: `java -jar otkserver-pre-alpha.jar` (para a versão `pre-alpha`, por exemplo);
 * Espere a mensagem `Servidor iniciado na porta ????...` (onde `????` é a porta que o servidor está rodando);
@@ -60,7 +62,7 @@ Essa pasta RELEASE possui o OTServer já compilado e é o suficiente para rodar 
 127.0.0.1 server2.tibia.com
 ```
 
-- O Mock criado na inicialização do servidor gera apenas uma conta:
+* O Mock criado na inicialização do servidor gera apenas uma conta:
 
 ```
 Account Number: 123
