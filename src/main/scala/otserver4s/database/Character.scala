@@ -15,6 +15,7 @@ class Personagem {
   
   @DatabaseField(generatedId = true)
   var idPersonagem: Long = _
+  def idInGame = idPersonagem + 0x10000000
   
   @DatabaseField(canBeNull = false)
   var accountNumber: Integer = _
@@ -81,7 +82,7 @@ class Personagem {
   var distanceLevel: Byte = 10
   var fishingLevel: Byte = 10
   
-  var luz: Luz = Luz(255, 215)
+  var luz: Luz = Luz(255.toByte, 215.toByte)
   var escudo: Escudo = Escudo.NENHUM
   var inventario: Array[Item] = {
     val invtr = Array.ofDim[Item](Slot.values.length)

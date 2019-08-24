@@ -56,7 +56,7 @@ case class Posicao(x: Short, y: Short, z: Byte) {
     }
 }
 
-case class Luz(raio: Integer, cor: Integer)
+case class Luz(raio: Byte, cor: Byte)
 
 case class Outfit(
   tipo: Byte, cabeca: Byte, corpo: Byte, 
@@ -149,11 +149,9 @@ object TipoConversa {
     values.filter(_.codigo == codigo).head
 }
 
-case class Criatura()
-
 case class Piso(codigo: Byte)
 object Piso {
-  val GRAMA = Piso(106)
+  val GRAMA = Piso(0x6a)
 }
 
 object Mapa {

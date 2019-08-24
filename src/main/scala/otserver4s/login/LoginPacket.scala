@@ -48,27 +48,26 @@ case class LoginRequest(
     conexao.close
     loginPacket    
   }
-  def processarLogin: Option[Packet] = {
+  def processarLogin: Packet = {
     otserver4s.Client.logger.debug(this)
     val conexao = otserver4s.database.ConexaoBancoDados.criarConexao
     val loginPacket = Try(Conta(this, conexao, false)) match {
       case Success(loginOk) => {
-        otserver4s.Client.logger.debug(s"Conta encontrada, processando login...")
+        otserver4s.Client.logger.debug(s"Conta re-validada, carregando personagem...")
         Personagem.buscarPersonagemPorNomeEAccount(
             this.personagem.get.nome, loginOk.number, conexao) match {
           case Some(personagem) => 
             if (otserver4s.Conectados.verificarSeConectado(personagem.nome))
-              Some(Packet.criarPacketProcessarLoginErro(
-                PConf("mensagem.login.erro.personagem.ja.conectado")))
-            // TODO: Retornar None quando a implementação do IN-GAME estiver apresentável
-            // FIXME: Retorno NÃO deve ser Option
-            else Some(Packet.criarPacketProcessarLoginErro("In-game nao implementado..."))
-            //----
-          case None => Some(Packet.criarPacketProcessarLoginErro(
-                         PConf("mensagem.login.erro.personagem.outra.conta")))
+              Packet.criarPacketProcessarLoginErro(PConf("mensagem.login.erro.personagem.ja.conectado"))
+            else {
+              otserver4s.Client.logger.debug(s"Login realizado com sucesso: $this")
+              null
+            }
+          case None => Packet.criarPacketProcessarLoginErro(
+            PConf("mensagem.login.erro.personagem.outra.conta"))
         }
       }
-      case Failure(ex) => Some(Packet.criarPacketProcessarLoginErro(ex.getMessage))
+      case Failure(ex) => Packet.criarPacketProcessarLoginErro(ex.getMessage)
     }
     conexao.close
     loginPacket

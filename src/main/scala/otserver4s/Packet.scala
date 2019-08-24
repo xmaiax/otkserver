@@ -38,13 +38,15 @@ case class Packet(
     escreverInt16(str.length.toShort)
     str.toCharArray.foreach(c => escreverByte(c.toByte))
   }
-  def enviar(socket: java.net.Socket) = {
+  def enviar(socket: java.net.Socket, fecharOutputStream: Boolean = false) = {
     val tamanho = (posicao - 2).toShort
     posicao = 0
     escreverInt16(tamanho)
     val pw = new java.io.PrintWriter(socket.getOutputStream, true)
+	println(buffer.map(x => s"$x, ").mkString)
     pw.write(buffer.map(_.toChar))
-    pw.close
+    pw.flush
+    if(fecharOutputStream) pw.close
   }
 }
 object Packet {
