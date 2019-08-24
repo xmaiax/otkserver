@@ -1,8 +1,8 @@
-## Open Tibia Server
+## Open Tibia Kotlin Server
 
 #### Servidor de Tibia para o protocolo 7.6
 
-O projeto se encontra inacabado, mas extremamente simples de compilar e rodar.
+O projeto se encontra inacabado, mas extremamente simples de compilar, rodar e alterar.
 
 Tela de Login (busca de personagens + MOTD + conexão com banco) funcionando perfeitamente.
 
@@ -10,13 +10,13 @@ Tela de Login (busca de personagens + MOTD + conexão com banco) funcionando per
 
 #### Informações
 - OTServer criado inteiramente do zero;
-- 100% do código é Scala, compatível com Java e Kotlin;
-- Servidor TCP utiliza o Socket nativo do Java (sem `sleep`);
-- Conexão com o banco feita pelo OrmLite;
-- Dispensa script de configuração de banco (feito antes de iniciar o servidor TCP);
-- Cria um banco H2 criptografado em arquivo, não precisa de serviços como o MySQL rodando;
+- 100% do código é Kotlin, compatível com Java, Scala e outras linguagens baseadas em JVM ~~(adeus, Scala!)~~;
+- Servidor TCP utiliza o ~~socket nativo do Java~~ framework Apache Mina (network application framework via Java NIO);
+- Conexão com o banco feita pelo `OrmLite`, onde a duração da sessão é parametrizada (default 10 segundos, em breve pelo `JPA`);
+- Dispensa script de configuração de banco (feito antes de iniciar o servidor TCP por código);
+- Cria um banco `H2` criptografado em arquivo, não precisa de serviços como o MySQL rodando (suporta qualquer framework que utilize um driver JDBC);
 - Log4J exibe todas as informações (senha é criptografada com MD5 + Salt antes de aparecer);
-- Código fonte compilado pelo Maven;
+- Código fonte compilado pelo `Maven` 3+;
 - Configuração feita no arquivo `otserver.properties`;
 
 #### Como compilar o servidor
@@ -34,16 +34,17 @@ Tela de Login (busca de personagens + MOTD + conexão com banco) funcionando per
 * Espere o Maven baixar as dependências e compilar o JAR executável;
 * Quando a mensagem `BUILD SUCCESS` aparecer, abra a pasta RELEASE criada dentro da raiz do projeto;
 * A seguinte estrutura foi criada:
-  * `otserver4s-???.jar` (`???` -> número da versão informada no `pom.xml`)
+  * `otkserver-???.jar` (`???` -> número da versão informada no `pom.xml`)
   * `lib/` (diretório com todas as dependências do projeto)
+  * `arquivos/` (diretório com o banco de dados em arquivo + log limitado a 40MB)
 
-Essa pasta RELEASE possui o OTServer já compilado e é o suficiente para rodar em qualquer dispositivo com a JRE 8 instalada.
+Essa pasta RELEASE possui o OTServer já compilado e é o suficiente para rodar em qualquer computador com a JRE 8 instalada.
 
 ###### Rodar
 * Abra uma CLI na pasta RELEASE;
-* Chame o comando: `java -jar otserver4s-pre-alpha.jar` (para a versão `pre-alpha`, por exemplo);
+* Chame o comando: `java -jar otkserver-pre-alpha.jar` (para a versão `pre-alpha`, por exemplo);
 * Espere a mensagem `Servidor iniciado na porta ????...` (onde `????` é a porta que o servidor está rodando);
-* Pronto, seu servidor já está rodando!
+* Pronto, seu OTServer já está rodando!
 
 ###### Client local (sem IP Changer)
 
@@ -59,11 +60,11 @@ Essa pasta RELEASE possui o OTServer já compilado e é o suficiente para rodar 
 127.0.0.1 server2.tibia.com
 ```
 
-O Mock criado na inicialização do servidor gera apenas uma conta:
+- O Mock criado na inicialização do servidor gera apenas uma conta:
 
 ```
 Account Number: 123
 Password: abc
 ```
 
-Agora basta abrir o Tibia e tentar se logar.
+* Agora basta abrir o Tibia e tentar se logar.
