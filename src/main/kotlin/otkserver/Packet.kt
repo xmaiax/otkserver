@@ -49,7 +49,7 @@ data class Packet(
     escreverByte((_int and 0xff00) shr 8)
   }
   fun escreverInt32(_long: Long) {
-    escreverByte((_long and 0x000000ff).toInt())
+    escreverByte( (_long and 0x000000ff).toInt())
     escreverByte(((_long and 0x0000ff00) shr 8).toInt())
     escreverByte(((_long and 0x00ff0000) shr 16).toInt())
     escreverByte(((_long and 0xff000000) shr 24).toInt())

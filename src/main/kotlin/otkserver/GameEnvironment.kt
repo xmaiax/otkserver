@@ -89,7 +89,7 @@ enum class Canal(val nome: String, val codigo: Int,
   PRIVADO("Privado", 0xff, false, false)
 }
 
-data class Item(val codigo: Short)
+data class Item(val codigo: Int)
 
 enum class Direcao(val codigo: Byte) {
 	NORTE(0x00), LESTE(0x01),
@@ -128,7 +128,7 @@ data class Posicao(
   	}
 }
 
-data class Luz(val raio: Int = 0xff, val cor: Int = 215)
+data class Luz(val raio: Int = 255, val cor: Int = 215)
 
 data class Outfit(
 	val tipo: Int, val cabeca: Int, val corpo: Int, 
@@ -148,13 +148,13 @@ enum class Escudo(val codigo: Byte) {
 	NENHUM(0x00)
 }
 
-enum class Slot(val codigo: Byte) {
+enum class Slot(val codigo: Int) {
   CABECA(0x01), AMULETO(0x02), MOCHILA(0x03),
 	ARMADURA(0x04), MAO_DIREITA(0x05),
 	MAO_ESQUERDA(0x06), PERNAS(0x07), PES(0x08),
 	ANEL(0x09), EXTRA(0x0a), ULTIMO(0x0b);
 	companion object {
-		fun getByCodigo(codigo: Byte) =
+		fun getByCodigo(codigo: Int) =
 			Slot.values().filter {
 				it.codigo == codigo }.first()
 	}
@@ -170,7 +170,7 @@ enum class TipoConversa(val codigo: Byte) {
 	MONSTRO_BERRANDO(0x11)
 }
 
-enum class TipoPiso(val codigo: Byte) {
+enum class TipoPiso(val codigo: Int) {
 	GRAMA(0x6a)
 }
 

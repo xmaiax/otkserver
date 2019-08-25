@@ -14,6 +14,17 @@ class Personagem(
 	@DatabaseField(foreign = true, foreignAutoRefresh = true)
   var conta: Conta = Conta(),
 	
+	var level: Int = 1,
+	var exp: Long = 0,
+	
+	var vida: Int = 150,
+	var vidaMax: Int = 150,
+	
+	var mana: Int = 0,
+	var manaMax: Int = 0,
+	
+	var capacidade: Int = 400,
+	
 	var posicaox: Int = 50,
 	var posicaoy: Int = 50,
   var posicaoz: Byte = 7,
@@ -58,6 +69,7 @@ class Personagem(
 			throw OTServerLoginException("mensagem.personagem.nao.existe")
 		}
 	}
+	fun percentualProxLevel(): Int = 0
 	fun posicao(posicao: Posicao =
 			Posicao(posicaox, posicaoy, posicaoz)): Posicao {
 		posicaox = posicao.x
