@@ -6,7 +6,7 @@ O projeto se encontra inacabado, mas extremamente simples de compilar, rodar e a
 
 Tela de Login (busca de personagens + MOTD + conexão com banco) funcionando perfeitamente.
 
-![wallpaper da versao 7](https://www.tibiawiki.com.br/images/5/50/Client_Artwork_7.0.jpg)
+![screenshot do otkserver rodando](https://github.com/felipeMaia92/otkserver/raw/master/screenshot.jpg)
 
 #### Informações
 - OTServer criado inteiramente do zero;
