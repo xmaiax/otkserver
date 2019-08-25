@@ -11,15 +11,20 @@ class Servidor(final val PORTA: Int):
 		val logger = org.apache.log4j.Logger.getLogger(Servidor::class.java)
 		@JvmStatic
 		fun main(args: Array<String>) {
+			
+			// ----[ Prepara o banco de dados ]----
 			val conexao = ConexaoBancoDados.criarConexao()
 			Conta.criarTabelaSeNaoExistir(conexao)
 			Personagem.criarTabelaSeNaoExistir(conexao)
+			// ---- Cria uma conta e vincula um novo personagem
 			val conta = Conta(123, "abc", 7)
 			if(Conta.contarTodos(conexao) < 1)
 				conta.salvar(conexao)
 			if(Personagem.contarTodos(conexao) < 1)
 				Personagem(nome = "Maia", conta = conta).salvar(conexao)
 			conexao.close()
+			// ------------
+			
 			logger.info("Iniciando OTServer...")
 			Servidor(Mundo.INSTANCE.porta)
 		}
