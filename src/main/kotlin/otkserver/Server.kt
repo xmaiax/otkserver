@@ -1,4 +1,4 @@
-package otserver4kotlin
+package otkserver
 
 import org.apache.mina.core.buffer.IoBuffer
 import org.apache.mina.core.session.IoSession
@@ -23,8 +23,6 @@ class Servidor(final val PORTA: Int):
 			logger.info("Iniciando OTServer...")
 			Servidor(Mundo.INSTANCE.porta)
 		}
-		fun deslogar(sessao: IoSession) =
-			AtributosSessao.CONTA_LOGADA.apagarAtributo(sessao)
 	}
 
 	init {
@@ -44,7 +42,7 @@ class Servidor(final val PORTA: Int):
 	}
 	
 	override fun sessionClosed(sessao: IoSession) {
-		Servidor.deslogar(sessao)
+		AtributosSessao.deslogar(sessao)
 		logger.debug("Sessão fechada!")
 	}
 	
@@ -54,7 +52,7 @@ class Servidor(final val PORTA: Int):
 	}
 	
 	override fun exceptionCaught(sessao: IoSession, causa: Throwable) {
-		Servidor.deslogar(sessao)
+		AtributosSessao.deslogar(sessao)
 		logger.error("Exception -> ${causa}")
 		causa.printStackTrace()
 	}
@@ -98,7 +96,7 @@ class Servidor(final val PORTA: Int):
 	
 	override fun inputClosed(sessao: IoSession) {
 		logger.debug("Input fechado!")
-		Servidor.deslogar(sessao)
+		AtributosSessao.deslogar(sessao)
 		super.inputClosed(sessao)
 	}
 

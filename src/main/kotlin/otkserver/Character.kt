@@ -1,4 +1,4 @@
-package otserver4kotlin
+package otkserver
 
 import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.support.ConnectionSource

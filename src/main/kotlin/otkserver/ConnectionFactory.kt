@@ -1,4 +1,4 @@
-package otserver4kotlin
+package otkserver
 
 class ConexaoBancoDados {
 	companion object {

@@ -1,4 +1,4 @@
-package otserver4kotlin
+package otkserver
 
 import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.field.ForeignCollectionField
@@ -28,7 +28,6 @@ class Conta(
 	fun salvar(conexao: ConnectionSource) {
 		this.hashSenha = MD5Utils.str2md5(this.hashSenha)
     Conta.criarDAO(conexao).create(this)
-		println(this)
 	}
 	companion object {
 		fun criarTabelaSeNaoExistir(conexao: ConnectionSource) =

@@ -1,4 +1,4 @@
-package otserver4kotlin
+package otkserver
 
 import org.apache.log4j.Logger
 

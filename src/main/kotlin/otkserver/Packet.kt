@@ -1,4 +1,4 @@
-package otserver4kotlin
+package otkserver
 
 import java.io.ByteArrayOutputStream
 import java.io.InputStream

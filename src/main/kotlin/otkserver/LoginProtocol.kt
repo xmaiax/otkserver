@@ -1,4 +1,4 @@
-package otserver4kotlin
+package otkserver
 
 import java.io.InputStream
 import org.apache.mina.core.session.IoSession
@@ -130,8 +130,14 @@ enum class TipoRequestLogin(private val codigo: Byte) {
 
 enum class AtributosSessao {
 	CONTA_LOGADA;
+
 	override fun toString() = this.name
 	fun getAtributo(sessao: IoSession): Any = sessao.getAttribute(this)
 	fun setAtributo(sessao: IoSession, objeto: Any) = sessao.setAttribute(this, objeto)
 	fun apagarAtributo(sessao: IoSession) = this.setAtributo(sessao, false)
+
+	companion object {
+		fun deslogar(sessao: IoSession) =
+			AtributosSessao.CONTA_LOGADA.apagarAtributo(sessao)
+	}
 }

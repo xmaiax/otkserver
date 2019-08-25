@@ -16,7 +16,6 @@
 		<dependency.dir>lib</dependency.dir>
 		<main.class>${project.groupId}.Servidor</main.class>
 		<kotlin.version>1.3.41</kotlin.version>
-		<kotlin.compiler.incremental>true</kotlin.compiler.incremental>
 		<mina.version>2.1.3</mina.version>
 		<h2.version>1.4.199</h2.version>
 		<ormlite.version>5.1</ormlite.version>

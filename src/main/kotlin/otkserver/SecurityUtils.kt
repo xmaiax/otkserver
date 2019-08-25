@@ -1,4 +1,4 @@
-package otserver4kotlin
+package otkserver
 
 class MD5Utils {
 	companion object {
