@@ -12,7 +12,30 @@ class Personagem(
   var nome: String = "",
 	
 	@DatabaseField(foreign = true, foreignAutoRefresh = true)
-  var conta: Conta = Conta()
+  var conta: Conta = Conta(),
+	
+	var posicaox: Int = 50,
+	var posicaoy: Int = 50,
+  var posicaoz: Byte = 7,
+	var direcao: Byte = Direcao.SUL.codigo,
+	
+	var outfitTipo: Int = 128,
+	var outfitCabeca: Int = 10,
+	var outfitCorpo: Int = 20,
+	var outfitPernas: Int = 30,
+	var outfitPes: Int = 40,
+	var outfitExtra: Int = Slot.ULTIMO.codigo.toInt(),
+	
+	var caveira: Byte = Caveira.NENHUMA.codigo,
+	
+	var magicLevel: Int = 0,
+	var fistLevel: Int = 10,
+	var clubLevel: Int = 10,
+	var swordLevel: Int = 10,
+	var axeLevel: Int = 10,
+	var distanceLevel: Int = 10,
+	var shieldLevel: Int = 10,
+	var fishingLevel: Int = 0
 ) {
 	override fun toString() =
 		"Character(name=$nome, account=${conta.codigo})"
@@ -34,5 +57,33 @@ class Personagem(
 			}
 			throw OTServerLoginException("mensagem.personagem.nao.existe")
 		}
+	}
+	fun posicao(posicao: Posicao =
+			Posicao(posicaox, posicaoy, posicaoz)): Posicao {
+		posicaox = posicao.x
+		posicaoy = posicao.y
+		posicaoz = posicao.z
+		return Posicao(posicaox, posicaoy, posicaoz)
+	}
+	fun direcao(direcao: Direcao =
+		  Direcao.getByCodigo(this.direcao)): Direcao {
+		this.direcao = direcao.codigo
+		return Direcao.getByCodigo(this.direcao)
+	}
+	fun outfit(outfit: Outfit = Outfit(
+		  outfitTipo, outfitCabeca, outfitCorpo,
+		  outfitPernas, outfitPes, outfitExtra)): Outfit {
+		outfitTipo = outfit.tipo
+		outfitCabeca = outfit.cabeca
+		outfitCorpo = outfit.corpo
+		outfitPernas = outfit.pernas
+		outfitPes = outfit.pes
+		outfitExtra = outfit.extra
+		return outfit
+	}
+	fun caveira(caveira: Caveira =
+			Caveira.getByCodigo(this.caveira)): Caveira {
+		this.caveira = caveira.codigo
+		return Caveira.getByCodigo(this.caveira)
 	}
 }

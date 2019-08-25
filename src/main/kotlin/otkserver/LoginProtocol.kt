@@ -101,17 +101,17 @@ data class ProtocoloLogin(
 		conexao.close()
 		return packet
 	}
+	
 	fun processarLogin(sessao: IoSession): Packet {
 		logger.debug(this)
 		personagem?.let { nomePersonagemLogando ->
 			val conexao = ConexaoBancoDados.criarConexao()
-			val p = Personagem.buscarPorNome(nomePersonagemLogando, conexao)
+			val jogador = Personagem.buscarPorNome(nomePersonagemLogando, conexao)
 			conexao.close()
-			if(account.number.equals(p.conta.codigo) and
-				 account.password.equals(p.conta.hashSenha)) {
-				AtributosSessao.CONTA_LOGADA.setAtributo(sessao, p)
-				val packet = Packet.criarPacketProcessarLoginErro("In-game nao implementado...")
-				return packet
+			if(account.number.equals(jogador.conta.codigo) and
+				 account.password.equals(jogador.conta.hashSenha)) {
+				AtributosSessao.CONTA_LOGADA.setAtributo(sessao, jogador)
+				return ProtocoloInGame().iniciarJogo(jogador)
 			}
 		}
 		throw OTServerLoginException()
@@ -123,19 +123,18 @@ enum class TipoRequestLogin(private val codigo: Byte) {
 	PROCESSAR_LOGIN(0x0a);
   override fun toString() = this.name
   companion object {
-    fun getTipoRequestByCodigo(codigo: Byte): TipoRequestLogin? =
-      TipoRequestLogin.values().filter { it.codigo == codigo }.first()
-    }
+    fun getTipoRequestByCodigo(codigo: Byte) =
+		  TipoRequestLogin.values().filter {
+			  it.codigo == codigo }.first()
+  }
 }
 
 enum class AtributosSessao {
 	CONTA_LOGADA;
-
 	override fun toString() = this.name
-	fun getAtributo(sessao: IoSession): Any = sessao.getAttribute(this)
+	fun getAtributo(sessao: IoSession): Any? = sessao.getAttribute(this)
 	fun setAtributo(sessao: IoSession, objeto: Any) = sessao.setAttribute(this, objeto)
-	fun apagarAtributo(sessao: IoSession) = this.setAtributo(sessao, false)
-
+	fun apagarAtributo(sessao: IoSession) = sessao.removeAttribute(this)
 	companion object {
 		fun deslogar(sessao: IoSession) =
 			AtributosSessao.CONTA_LOGADA.apagarAtributo(sessao)

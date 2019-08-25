@@ -11,19 +11,19 @@ class Servidor(final val PORTA: Int):
 		val logger = org.apache.log4j.Logger.getLogger(Servidor::class.java)
 		@JvmStatic
 		fun main(args: Array<String>) {
-			
 			// ----[ Prepara o banco de dados ]----
 			val conexao = ConexaoBancoDados.criarConexao()
 			Conta.criarTabelaSeNaoExistir(conexao)
 			Personagem.criarTabelaSeNaoExistir(conexao)
-			// ---- Cria uma conta e vincula um novo personagem
-			val conta = Conta(123, "abc", 7)
-			if(Conta.contarTodos(conexao) < 1)
+			// Cria uma conta e vincula um novo personagem
+			if(Conta.contarTodos(conexao) < 1) {
+				val conta = Conta(123, "abc", 7)
 				conta.salvar(conexao)
-			if(Personagem.contarTodos(conexao) < 1)
-				Personagem(nome = "Maia", conta = conta).salvar(conexao)
+  			if(Personagem.contarTodos(conexao) < 1)
+  				Personagem(nome = "Maia", conta = conta).salvar(conexao)
+			}
 			conexao.close()
-			// ------------
+			// ----
 			
 			logger.info("Iniciando OTServer...")
 			Servidor(Mundo.INSTANCE.porta)
@@ -39,10 +39,12 @@ class Servidor(final val PORTA: Int):
 	}
 
 	override fun sessionCreated(sessao: IoSession) {
+		AtributosSessao.deslogar(sessao)
 		logger.debug("Sessão criada!")
 	}
 	
 	override fun sessionOpened(sessao: IoSession) {
+		AtributosSessao.deslogar(sessao)
 		logger.debug("Sessão aberta!")
 	}
 	
@@ -65,34 +67,39 @@ class Servidor(final val PORTA: Int):
 	override fun messageReceived(sessao: IoSession, mensagem: Any) {
 		val buffer = mensagem as IoBuffer
 		val tamanhoPacket = Packet.lerInt16(buffer.asInputStream())
-		logger.trace("Packet recebido - Tamanho: $tamanhoPacket")
-		var desconectar = false
-		val packet: Packet = when(
-			TipoRequestLogin.getTipoRequestByCodigo(
-				(Packet.lerByte(buffer.asInputStream()) and 0xff).toByte()
-			)) {
-			TipoRequestLogin.LOGIN_LISTA_PERSONAGENS ->
-				try {
-					desconectar = true
-					ProtocoloLogin(buffer.asInputStream()).criarPacketLogin()
-				}
-    		catch(ex: OTServerLoginException) {
-    			Packet.criarPacketErroLogin(
-    			  ex.message?.let { it } ?: run {
-    				  PropriedadeConfiguracoes("mensagem.login.erro.generico") })
-    		}
-			TipoRequestLogin.PROCESSAR_LOGIN ->
-				try {
-				  ProtocoloLogin(buffer.asInputStream(), true).processarLogin(sessao)
-			  }
-			  catch(ex: OTServerLoginException) {
-				  Packet.criarPacketProcessarLoginErro(
-					  ex.message?.let { it } ?: run {
-    				  PropriedadeConfiguracoes("mensagem.login.erro.generico") })
-			  }
-			else -> Packet()
+		val tipoRequest = Packet.lerByte(buffer.asInputStream())
+		val hexTipoRequest = "%02x".format(tipoRequest)
+		logger.debug("Packet recebido - Tamanho: $tamanhoPacket - Tipo: 0x$hexTipoRequest")
+		AtributosSessao.CONTA_LOGADA.getAtributo(sessao)?.let {
+		  System.err.println("Estou logado e trabalhando com os packets in-game!")
+		} ?: run {
+			var desconectar = false
+  	  when(TipoRequestLogin.getTipoRequestByCodigo(tipoRequest.toByte())) {
+  			TipoRequestLogin.LOGIN_LISTA_PERSONAGENS ->
+  				try {
+  				  desconectar = true
+  					ProtocoloLogin(buffer.asInputStream()).criarPacketLogin()
+  				}
+      		catch(ex: OTServerLoginException) {
+      			Packet.criarPacketErroLogin(
+      			  ex.message?.let { it } ?: run {
+      				  PropriedadeConfiguracoes("mensagem.login.erro.generico")
+  				    })
+      		}
+  			TipoRequestLogin.PROCESSAR_LOGIN ->
+  				try {
+  				  ProtocoloLogin(buffer.asInputStream(), true)
+  					  .processarLogin(sessao)
+  			  }
+  			  catch(ex: OTServerLoginException) {
+  				  Packet.criarPacketProcessarLoginErro(
+  					  ex.message?.let { it } ?: run {
+      				  PropriedadeConfiguracoes("mensagem.login.erro.generico")
+  					  })
+  			  }
+  		}.enviar(sessao, desconectar)
 		}
-		packet.enviar(sessao, desconectar)
+		
 	}
 	
 	override fun messageSent(sessao: IoSession, mensagem: Any) {
