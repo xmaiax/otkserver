@@ -69,9 +69,10 @@ class Servidor(final val PORTA: Int):
 		val tamanhoPacket = Packet.lerInt16(buffer.asInputStream())
 		val tipoRequest = Packet.lerByte(buffer.asInputStream())
 		val hexTipoRequest = "%02x".format(tipoRequest)
-		logger.debug("Packet recebido - Tamanho: $tamanhoPacket - Tipo: 0x$hexTipoRequest")
+		logger.debug(
+			"Packet recebido - Tamanho: $tamanhoPacket - Tipo: 0x$hexTipoRequest")
 		AtributosSessao.CONTA_LOGADA.getAtributo(sessao)?.let {
-		  System.err.println("Estou logado e trabalhando com os packets in-game!")
+		  ProtocoloLogado.agir(AcaoInGame.getByCodigo(tipoRequest), sessao)
 		} ?: run {
 			var desconectar = false
   	  when(TipoRequestLogin.getTipoRequestByCodigo(tipoRequest.toByte())) {

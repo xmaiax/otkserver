@@ -111,7 +111,7 @@ data class ProtocoloLogin(
 			if(account.number.equals(jogador.conta.codigo) and
 				 account.password.equals(jogador.conta.hashSenha)) {
 				AtributosSessao.CONTA_LOGADA.setAtributo(sessao, jogador)
-				return ProtocoloInGame().iniciarJogo(jogador)
+				return ProtocoloLoginOk.iniciarJogo(jogador)
 			}
 		}
 		throw OTServerLoginException()

@@ -59,6 +59,7 @@ data class Packet(
     _str.toCharArray().forEach { c -> escreverByte(c.toByte().toInt()) }
   }
   fun enviar(sessao: IoSession, desconectar: Boolean) {
+	  println("Tamanho mensagem enviada: $tamanho")
     val stream = ByteArrayOutputStream(tamanho)
 	  stream.write(byteArrayOf((tamanho and 0x00ff).toByte(), ((tamanho and 0xff00) shr 8).toByte()) + buffer)
 	  stream.flush()
