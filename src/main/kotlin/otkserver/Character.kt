@@ -14,38 +14,26 @@ class Personagem(
 	@DatabaseField(foreign = true, foreignAutoRefresh = true)
   var conta: Conta = Conta(),
 	
-	@DatabaseField(canBeNull = false) 
-	var level: Int = 1,
+	@DatabaseField(canBeNull = false)
+	var vocacao: Byte = 0x01,
 	
 	@DatabaseField(canBeNull = false) 
-	var exp: Long = 0,
+	var exp: Long = 270,
 	
 	@DatabaseField(canBeNull = false) 
 	var vida: Int = 150,
 	
-	@DatabaseField(canBeNull = false)
-	var vidaMax: Int = 150,
+	@DatabaseField(canBeNull = false) 
+	var mana: Int = 50,
 	
 	@DatabaseField(canBeNull = false) 
-	var mana: Int = 0,
+	var posicaox: Int = Mapa.PONTO_RESPAWN.x,
 	
 	@DatabaseField(canBeNull = false) 
-	var manaMax: Int = 0,
+	var posicaoy: Int = Mapa.PONTO_RESPAWN.y,
 	
 	@DatabaseField(canBeNull = false) 
-	var capacidade: Int = 400,
-	
-	@DatabaseField(canBeNull = false) 
-	var alma: Byte = 100,
-	
-	@DatabaseField(canBeNull = false) 
-	var posicaox: Int = 50,
-	
-	@DatabaseField(canBeNull = false) 
-	var posicaoy: Int = 50,
-	
-	@DatabaseField(canBeNull = false) 
-  var posicaoz: Byte = 7,
+  var posicaoz: Byte = Mapa.PONTO_RESPAWN.z,
 	
 	@DatabaseField(canBeNull = false)
 	var direcao: Byte = Direcao.SUL.codigo,
@@ -120,7 +108,8 @@ class Personagem(
 	var fishingPercentual: Byte = 0
 ) {
 	override fun toString() =
-		"Character(name=$nome, account=${conta.codigo})"
+		"Character(name=$nome, vocation=${vocacao()}, " +
+		"level=${ExpUtils.levelDaExp(exp)}, account=${conta.codigo})"
 	fun salvar(conexao: ConnectionSource) =
 		conta.recarregar(conexao).personagens?.let { it.add(this) }
 	companion object {
@@ -139,6 +128,10 @@ class Personagem(
 			}
 			throw OTServerLoginException("mensagem.personagem.nao.existe")
 		}
+	}
+	fun vocacao(_vocacao: Vocacao = Vocacao.getByCodigo(vocacao)): Vocacao {
+		vocacao = _vocacao.codigo
+		return Vocacao.getByCodigo(vocacao)
 	}
 	fun percentualProxLevel(): Byte = 0
 	fun posicao(posicao: Posicao =

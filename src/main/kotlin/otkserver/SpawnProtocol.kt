@@ -7,6 +7,8 @@ class ProtocoloLoginOk {
 		val CONST_RENDERIZACAO_CLIENT = 0x32
 		val CONST_FLAG_REPORTAR_ERROS = 0x00
 		val CONST_MARCACAO_INFO_MAPA = 0x64
+		val CONST_MARCACAO_INVENTARIO_POPULADO = 0x78
+		val CONST_MARCACAO_INVENTARIO_VAZIO = 0x79
 		val CONST_MARCACAO_STATS = 0xa0
 		val CONST_MARCACAO_SKILLS = 0xa1
 		val CONST_MARCACAO_EFEITO_SPAWN = 0x83
@@ -41,7 +43,7 @@ class ProtocoloLoginOk {
 			}
 			fun escreverInventario() {
 				fun escreverSlot(slot: Slot) {
-					packet.escreverByte(0x79)
+					packet.escreverByte(CONST_MARCACAO_INVENTARIO_VAZIO)
 					packet.escreverByte(slot.codigo)
 				}
 				escreverSlot(Slot.CABECA)
@@ -57,17 +59,25 @@ class ProtocoloLoginOk {
 			}
 			fun escreverStats() {
 				packet.escreverByte(CONST_MARCACAO_STATS)
+				val level = ExpUtils.levelDaExp(jogador.exp)
+				val vidaMax = jogador.vocacao().vidaBase +
+					(jogador.vocacao().vidaLevel * (level - 1))
+				jogador.vida = if(jogador.vida > vidaMax) vidaMax else jogador.vida
   			packet.escreverInt16(jogador.vida)
-  			packet.escreverInt16(jogador.vidaMax)
-  			packet.escreverInt16(jogador.capacidade)
+  			packet.escreverInt16(vidaMax)
+  			packet.escreverInt16(jogador.vocacao().capacidadeBase +
+					(jogador.vocacao().capacidadeLevel * (level - 1)))
   			packet.escreverInt32(jogador.exp)
-  			packet.escreverInt16(jogador.level)
-  			packet.escreverByte(jogador.percentualProxLevel())
+  			packet.escreverInt16(level)
+  			packet.escreverByte(ExpUtils.percentualProxLevel(jogador.exp))
+				val manaMax = jogador.vocacao().manaBase +
+					(jogador.vocacao().manaLevel * (level - 1))
+				jogador.mana = if(jogador.mana > manaMax) manaMax else jogador.mana
   			packet.escreverInt16(jogador.mana)
-  			packet.escreverInt16(jogador.manaMax)
+  			packet.escreverInt16(manaMax)
   			packet.escreverByte(jogador.magicLevel)
   			packet.escreverByte(jogador.mlPercentual)
-  			packet.escreverByte(jogador.alma)
+  			packet.escreverByte(jogador.vocacao().almaBase)
 			}
 			fun escreverSkills() {
   			packet.escreverByte(CONST_MARCACAO_SKILLS)
