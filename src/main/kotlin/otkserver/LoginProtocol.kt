@@ -87,7 +87,7 @@ data class ProtocoloLogin(
     packet.escreverString(Mundo.INSTANCE.motd.toString())
     packet.escreverByte(Packet.MARCACAO_PACKET_INICIO_LISTA_PERSONAGENS)
 		conta.personagens?.let {
-			packet.escreverByte(it.size and 0xff)
+			packet.escreverByte(it.size)
 			it.forEach { personagem ->
 			  packet.escreverString(personagem.nome)
         packet.escreverString(Mundo.INSTANCE.nome)
@@ -111,7 +111,7 @@ data class ProtocoloLogin(
 			if(account.number.equals(jogador.conta.codigo) and
 				 account.password.equals(jogador.conta.hashSenha)) {
 				AtributosSessao.CONTA_LOGADA.setAtributo(sessao, jogador)
-				return ProtocoloLoginOk.iniciarJogo(jogador)
+				return ProtocoloLoginOk.criarPacketLoginOk(jogador)
 			}
 		}
 		throw OTServerLoginException()

@@ -24,7 +24,6 @@ class Servidor(final val PORTA: Int):
 			}
 			conexao.close()
 			// ----
-			
 			logger.info("Iniciando OTServer...")
 			Servidor(Mundo.INSTANCE.porta)
 		}

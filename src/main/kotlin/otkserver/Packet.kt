@@ -41,9 +41,15 @@ data class Packet(
       Packet.criarPacketGenericoMensagem(
         Packet.CODIGO_PACKET_PROCESSAR_LOGIN_ERRO, mensagemErro)
   }
-  fun escreverByte(_byte: Int) {
-	  buffer[tamanho++] = (_byte and 0xff).toByte()
+	fun escreverByte(_byte: Byte) {
+	  buffer[tamanho++] = _byte
   }
+  fun escreverByte(_byte: Int) {
+	  escreverByte((_byte and 0xff).toByte())
+  }
+	fun escreverByte(_byte: Char) {
+		escreverByte(_byte.toByte())
+	}
   fun escreverInt16(_int: Int) {
     escreverByte(_int and 0x00ff)
     escreverByte((_int and 0xff00) shr 8)
@@ -56,7 +62,7 @@ data class Packet(
   }
   fun escreverString(_str: String) {
     escreverInt16(_str.length)
-    _str.toCharArray().forEach { c -> escreverByte(c.toByte().toInt()) }
+    _str.toCharArray().forEach { escreverByte(it) }
   }
   fun enviar(sessao: IoSession, desconectar: Boolean) {
     val stream = ByteArrayOutputStream(tamanho)

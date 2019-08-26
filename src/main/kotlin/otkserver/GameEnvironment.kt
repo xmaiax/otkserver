@@ -128,11 +128,13 @@ data class Posicao(
   	}
 }
 
-data class Luz(val raio: Int = 255, val cor: Int = 215)
+data class Luz(
+	val raio: Byte = 0xff.toByte(),
+	val cor: Byte = 0xd7.toByte())
 
 data class Outfit(
-	val tipo: Int, val cabeca: Int, val corpo: Int, 
-  val pernas: Int, val pes: Int, val extra: Int)
+	val tipo: Int, val cabeca: Byte, val corpo: Byte, 
+  val pernas: Byte, val pes: Byte, val extra: Byte)
 
 enum class Caveira(val codigo: Byte) {
 	NENHUMA(0x00), BRANCA(0x01),
@@ -148,17 +150,19 @@ enum class Escudo(val codigo: Byte) {
 	NENHUM(0x00)
 }
 
-enum class Slot(val codigo: Int) {
+enum class Slot(val codigo: Byte) {
   CABECA(0x01), AMULETO(0x02), MOCHILA(0x03),
 	ARMADURA(0x04), MAO_DIREITA(0x05),
 	MAO_ESQUERDA(0x06), PERNAS(0x07), PES(0x08),
 	ANEL(0x09), EXTRA(0x0a), ULTIMO(0x0b);
 	companion object {
-		fun getByCodigo(codigo: Int) =
+		fun getByCodigo(codigo: Byte) =
 			Slot.values().filter {
 				it.codigo == codigo }.first()
 	}
 }
+
+data class Skill(val level: Byte, val percentual: Byte)
 
 enum class TipoConversa(val codigo: Byte) {
   NORMAL(0x01), COCHICHAR(0x02), GRITAR(0x03),
@@ -170,7 +174,11 @@ enum class TipoConversa(val codigo: Byte) {
 	MONSTRO_BERRANDO(0x11)
 }
 
-enum class TipoPiso(val codigo: Int) {
+enum class EfeitosEspeciais(val codigo: Byte) {
+	SPAWN(0x04)
+}
+
+enum class TipoPiso(val codigo: Byte) {
 	GRAMA(0x6a)
 }
 

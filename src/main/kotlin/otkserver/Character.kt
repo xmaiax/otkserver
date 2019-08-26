@@ -14,39 +14,110 @@ class Personagem(
 	@DatabaseField(foreign = true, foreignAutoRefresh = true)
   var conta: Conta = Conta(),
 	
+	@DatabaseField(canBeNull = false) 
 	var level: Int = 1,
+	
+	@DatabaseField(canBeNull = false) 
 	var exp: Long = 0,
 	
+	@DatabaseField(canBeNull = false) 
 	var vida: Int = 150,
+	
+	@DatabaseField(canBeNull = false)
 	var vidaMax: Int = 150,
 	
+	@DatabaseField(canBeNull = false) 
 	var mana: Int = 0,
+	
+	@DatabaseField(canBeNull = false) 
 	var manaMax: Int = 0,
 	
+	@DatabaseField(canBeNull = false) 
 	var capacidade: Int = 400,
 	
+	@DatabaseField(canBeNull = false) 
+	var alma: Byte = 100,
+	
+	@DatabaseField(canBeNull = false) 
 	var posicaox: Int = 50,
+	
+	@DatabaseField(canBeNull = false) 
 	var posicaoy: Int = 50,
+	
+	@DatabaseField(canBeNull = false) 
   var posicaoz: Byte = 7,
+	
+	@DatabaseField(canBeNull = false)
 	var direcao: Byte = Direcao.SUL.codigo,
 	
+	@DatabaseField(canBeNull = false) 
 	var outfitTipo: Int = 128,
-	var outfitCabeca: Int = 10,
-	var outfitCorpo: Int = 20,
-	var outfitPernas: Int = 30,
-	var outfitPes: Int = 40,
-	var outfitExtra: Int = Slot.ULTIMO.codigo.toInt(),
 	
+	@DatabaseField(canBeNull = false) 
+	var outfitCabeca: Byte = 10,
+	
+	@DatabaseField(canBeNull = false) 
+	var outfitCorpo: Byte = 20,
+	
+	@DatabaseField(canBeNull = false) 
+	var outfitPernas: Byte = 30,
+	
+	@DatabaseField(canBeNull = false) 
+	var outfitPes: Byte = 40,
+	
+	@DatabaseField(canBeNull = false) 
+	var outfitExtra: Byte = Slot.ULTIMO.codigo,
+	
+	@DatabaseField(canBeNull = false) 
 	var caveira: Byte = Caveira.NENHUMA.codigo,
 	
-	var magicLevel: Int = 0,
-	var fistLevel: Int = 10,
-	var clubLevel: Int = 10,
-	var swordLevel: Int = 10,
-	var axeLevel: Int = 10,
-	var distanceLevel: Int = 10,
-	var shieldLevel: Int = 10,
-	var fishingLevel: Int = 0
+	@DatabaseField(canBeNull = false) 
+	var magicLevel: Byte = 0,
+	
+	@DatabaseField(canBeNull = false) 
+	var mlPercentual: Byte = 0,
+	
+	@DatabaseField(canBeNull = false) 
+	var fistLevel: Byte = 10,
+	
+	@DatabaseField(canBeNull = false) 
+	var fistPercentual: Byte = 0,
+	
+	@DatabaseField(canBeNull = false) 
+	var clubLevel: Byte = 10,
+	
+	@DatabaseField(canBeNull = false) 
+	var clubPercentual: Byte = 0,
+	
+	@DatabaseField(canBeNull = false) 
+	var swordLevel: Byte = 10,
+	
+	@DatabaseField(canBeNull = false) 
+	var swordPercentual: Byte = 0,
+	
+	@DatabaseField(canBeNull = false) 
+	var axeLevel: Byte = 10,
+	
+	@DatabaseField(canBeNull = false) 
+	var axePercentual: Byte = 0,
+	
+	@DatabaseField(canBeNull = false) 
+	var distanceLevel: Byte = 10,
+	
+	@DatabaseField(canBeNull = false) 
+	var distancePercentual: Byte = 0,
+	
+	@DatabaseField(canBeNull = false) 
+	var shieldLevel: Byte = 10,
+	
+	@DatabaseField(canBeNull = false) 
+	var shieldPercentual: Byte = 0,
+	
+	@DatabaseField(canBeNull = false) 
+	var fishingLevel: Byte = 0,
+	
+	@DatabaseField(canBeNull = false)
+	var fishingPercentual: Byte = 0
 ) {
 	override fun toString() =
 		"Character(name=$nome, account=${conta.codigo})"
@@ -69,7 +140,7 @@ class Personagem(
 			throw OTServerLoginException("mensagem.personagem.nao.existe")
 		}
 	}
-	fun percentualProxLevel(): Int = 0
+	fun percentualProxLevel(): Byte = 0
 	fun posicao(posicao: Posicao =
 			Posicao(posicaox, posicaoy, posicaoz)): Posicao {
 		posicaox = posicao.x
@@ -97,5 +168,53 @@ class Personagem(
 			Caveira.getByCodigo(this.caveira)): Caveira {
 		this.caveira = caveira.codigo
 		return Caveira.getByCodigo(this.caveira)
+	}
+	fun skillML(ml: Skill =
+			Skill(magicLevel, mlPercentual)): Skill {
+		magicLevel = ml.level
+		mlPercentual = ml.percentual
+		return Skill(magicLevel, mlPercentual)
+	}
+	fun fistSkill(fist: Skill =
+			Skill(fistLevel, fistPercentual)): Skill {
+		fistLevel = fist.level
+		fistPercentual = fist.percentual
+		return Skill(fistLevel, fistPercentual)
+	}
+	fun clubSkill(club: Skill =
+			Skill(clubLevel, clubPercentual)): Skill {
+		clubLevel = club.level
+		clubPercentual = club.percentual
+		return Skill(clubLevel, clubPercentual)
+	}
+	fun swordSkill(sword: Skill =
+			Skill(swordLevel, swordPercentual)): Skill {
+		swordLevel = sword.level
+		swordPercentual = sword.percentual
+		return Skill(swordLevel, swordPercentual)
+	}
+	fun axeSkill(axe: Skill =
+			Skill(axeLevel, axePercentual)): Skill {
+		axeLevel = axe.level
+		axePercentual = axe.percentual
+		return Skill(axeLevel, axePercentual)
+	}
+	fun distanceSkill(distance: Skill =
+			Skill(distanceLevel, distancePercentual)): Skill {
+		distanceLevel = distance.level
+		distancePercentual = distance.percentual
+		return Skill(distanceLevel, distancePercentual)
+	}
+	fun shieldSkill(shield: Skill =
+			Skill(shieldLevel, shieldPercentual)): Skill {
+		shieldLevel = shield.level
+		shieldPercentual = shield.percentual
+		return Skill(shieldLevel, shieldPercentual)
+	}
+	fun fishingSkill(fishing: Skill =
+			Skill(fishingLevel, fishingPercentual)): Skill {
+		fishingLevel = fishing.level
+		fishingPercentual = fishing.percentual
+		return Skill(fishingLevel, fishingPercentual)
 	}
 }
