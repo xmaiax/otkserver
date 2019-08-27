@@ -38,12 +38,10 @@ class Servidor(final val PORTA: Int):
 	}
 
 	override fun sessionCreated(sessao: IoSession) {
-		AtributosSessao.deslogar(sessao)
 		logger.debug("Sessão criada!")
 	}
 	
 	override fun sessionOpened(sessao: IoSession) {
-		AtributosSessao.deslogar(sessao)
 		logger.debug("Sessão aberta!")
 	}
 	
@@ -67,9 +65,9 @@ class Servidor(final val PORTA: Int):
 		val buffer = mensagem as IoBuffer
 		val tamanhoPacket = Packet.lerInt16(buffer.asInputStream())
 		val tipoRequest = Packet.lerByte(buffer.asInputStream())
-		val hexTipoRequest = "%02x".format(tipoRequest)
 		logger.debug(
-			"Packet recebido - Tamanho: $tamanhoPacket - Tipo: 0x$hexTipoRequest")
+			"Packet recebido - Tamanho: $tamanhoPacket - Tipo: 0x${
+			"%02x".format(tipoRequest)}")
 		AtributosSessao.CONTA_LOGADA.getAtributo(sessao)?.let {
 		  ProtocoloLogado.agir(AcaoInGame.getByCodigo(tipoRequest), sessao)
 		} ?: run {

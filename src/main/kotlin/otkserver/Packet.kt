@@ -64,11 +64,15 @@ data class Packet(
     escreverInt16(_str.length)
     _str.toCharArray().forEach { escreverByte(it) }
   }
-  fun enviar(sessao: IoSession, desconectar: Boolean) {
-    val stream = ByteArrayOutputStream(tamanho)
-	  stream.write(byteArrayOf((tamanho and 0x00ff).toByte(), ((tamanho and 0xff00) shr 8).toByte()) + buffer)
+	fun getArrayBytes(): ByteArray {
+		val stream = ByteArrayOutputStream(tamanho)
+	  stream.write(byteArrayOf((tamanho and 0x00ff).toByte(),
+		  ((tamanho and 0xff00) shr 8).toByte()) + buffer)
 	  stream.flush()
-	  sessao.write(IoBuffer.wrap(stream.toByteArray()))
+		return stream.toByteArray()
+	}
+  fun enviar(sessao: IoSession, desconectar: Boolean) {
+	  sessao.write(IoBuffer.wrap(getArrayBytes()))
 	  if(desconectar) sessao.closeOnFlush()
   }
 }

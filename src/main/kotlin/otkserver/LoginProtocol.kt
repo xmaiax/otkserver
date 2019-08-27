@@ -136,7 +136,12 @@ enum class AtributosSessao {
 	fun setAtributo(sessao: IoSession, objeto: Any) = sessao.setAttribute(this, objeto)
 	fun apagarAtributo(sessao: IoSession) = sessao.removeAttribute(this)
 	companion object {
-		fun deslogar(sessao: IoSession) =
+		fun deslogar(sessao: IoSession) {
+			AtributosSessao.CONTA_LOGADA.getAtributo(sessao)?.let {
+				ProtocoloLoginOk.logger.debug("Jogador deslogado: ${it as Personagem}")
+			}
 			AtributosSessao.CONTA_LOGADA.apagarAtributo(sessao)
+			sessao.closeNow()
+		}
 	}
 }
