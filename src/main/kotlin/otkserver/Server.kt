@@ -3,6 +3,8 @@ package otkserver
 import org.apache.mina.core.buffer.IoBuffer
 import org.apache.mina.core.session.IoSession
 import org.apache.mina.filter.executor.ExecutorFilter
+import org.apache.mina.core.session.IdleStatus
+import org.apache.mina.filter.executor.OrderedThreadPoolExecutor
 
 class Servidor(final val PORTA: Int):
 	  org.apache.mina.core.service.IoHandlerAdapter() {
@@ -31,7 +33,9 @@ class Servidor(final val PORTA: Int):
 
 	init {
 		val acceptor: org.apache.mina.core.service.IoAcceptor =
-			org.apache.mina.transport.socket.nio.NioSocketAcceptor()
+			org.apache.mina.transport.socket.nio.NioSocketAcceptor(2)
+		acceptor.getFilterChain().addFirst("threadPool",
+			ExecutorFilter(OrderedThreadPoolExecutor(16)))
 		acceptor.setHandler(this)
 		acceptor.bind(java.net.InetSocketAddress(PORTA))
 		logger.info("OTServer iniciado na porta $PORTA")
@@ -69,7 +73,8 @@ class Servidor(final val PORTA: Int):
 			"Packet recebido - Tamanho: $tamanhoPacket - Tipo: 0x${
 			"%02x".format(tipoRequest)}")
 		AtributosSessao.CONTA_LOGADA.getAtributo(sessao)?.let {
-		  ProtocoloLogado.agir(AcaoInGame.getByCodigo(tipoRequest), sessao)
+		  ProtocoloLogado.agir(AcaoInGame.getByCodigo(tipoRequest),
+			  buffer.asInputStream(), sessao)
 		} ?: run {
 			var desconectar = false
   	  when(TipoRequestLogin.getTipoRequestByCodigo(tipoRequest.toByte())) {

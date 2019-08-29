@@ -171,7 +171,12 @@ enum class TipoConversa(val codigo: Byte) {
   BROADCAST(0x09), PVT(0x04), CANAL_VERMELHO(0x0a),
   PVT_VERMELHO(0x0b), CANAL_LARANJA(0x0c),
   VERMELHO_ANONIMO(0x0d), MONSTRO(0x10),
-	MONSTRO_BERRANDO(0x11)
+	MONSTRO_BERRANDO(0x11);
+	companion object {
+		fun getByCodigo(codigo: Byte) =
+			TipoConversa.values().filter {
+				it.codigo == codigo }.first()
+	}
 }
 
 enum class EfeitosEspeciais(val codigo: Byte) {

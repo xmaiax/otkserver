@@ -4,9 +4,10 @@ import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import org.apache.mina.core.buffer.IoBuffer
 import org.apache.mina.core.session.IoSession
+import org.apache.mina.core.write.WriteRequest
 
 data class Packet(
-  private var tamanho: Int = 0,
+  var tamanho: Int = 0,
   val buffer: ByteArray = ByteArray(0xffff - 2) { 0x00 }
 ) {
   companion object {
@@ -64,15 +65,17 @@ data class Packet(
     escreverInt16(_str.length)
     _str.toCharArray().forEach { escreverByte(it) }
   }
-	fun getArrayBytes(): ByteArray {
-		val stream = ByteArrayOutputStream(tamanho)
-	  stream.write(byteArrayOf((tamanho and 0x00ff).toByte(),
-		  ((tamanho and 0xff00) shr 8).toByte()) + buffer)
-	  stream.flush()
-		return stream.toByteArray()
+	fun getBytesComTamanho(): ByteArray {
+		return byteArrayOf((tamanho and 0x00ff).toByte(),
+		  ((tamanho and 0xff00) shr 8).toByte()) + buffer
 	}
   fun enviar(sessao: IoSession, desconectar: Boolean) {
-	  sessao.write(IoBuffer.wrap(getArrayBytes()))
+	  val ioBuffer = IoBuffer.allocate(tamanho, false)
+	  ioBuffer.setAutoExpand(true)
+	  getBytesComTamanho().forEach { ioBuffer.put(it) }
+	  ioBuffer.flip()
+	  sessao.write(ioBuffer)
+	  ioBuffer.free()
 	  if(desconectar) sessao.closeOnFlush()
   }
 }
