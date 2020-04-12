@@ -11,13 +11,13 @@ Tela de Login (busca de personagens + MOTD + conexão com banco) funcionando per
 #### Informações
 - OTServer criado inteiramente do zero;
 - 100% do código é Kotlin, compatível com Java, Scala e outras linguagens baseadas em JVM ~~(adeus, Scala!)~~;
-- Servidor TCP utiliza o ~~socket nativo do Java~~ framework Apache Mina (network application framework via Java NIO);
-- Conexão com o banco feita pelo `OrmLite`, onde a duração da sessão é parametrizada (default 10 segundos, em breve pelo `JPA`);
-- Dispensa script de configuração de banco (feito antes de iniciar o servidor TCP por código);
+- Servidor TCP utiliza ~~o framework Apache Mina~~ Java NIO Socket (Channels e tudo mais);
+- Conexão com o banco feita pelo `JPA` (Spring-Boot);
+- Dispensa script de configuração de banco;
 - Cria um banco `H2` criptografado em arquivo, não precisa de serviços como o MySQL rodando (suporta qualquer framework que utilize um driver JDBC);
 - Log4J exibe todas as informações (senha é criptografada com MD5 + Salt antes de aparecer);
 - Código fonte compilado pelo `Maven` 3+;
-- Configuração feita no arquivo `otserver.properties`;
+- Configuração feita no arquivo `application.properties`;
 
 #### Como compilar o servidor
 
@@ -35,17 +35,15 @@ Tela de Login (busca de personagens + MOTD + conexão com banco) funcionando per
 * Quando a mensagem `BUILD SUCCESS` aparecer, abra a pasta RELEASE criada dentro da raiz do projeto;
 * A seguinte estrutura foi criada:
   * `otkserver-???.jar` (`???` -> número da versão informada no `pom.xml`)
-  * `lib/` (diretório com todas as dependências do projeto)
-  * `arquivos/` (diretório com o banco de dados em arquivo + log limitado a 40MB)
 
 Essa pasta RELEASE possui o OTServer já compilado e é o suficiente para rodar em qualquer computador com a JRE 8 instalada.
 
-O projeto compilado pesa, aproximadamente, 5MB.
+O projeto compilado pesa menos de 60MB, possui um Rest Service.
 
 ##### Rodar
 * Abra uma CLI na pasta RELEASE;
-* Chame o comando: `java -jar otkserver-pre-alpha.jar` (para a versão `pre-alpha`, por exemplo);
-* Espere a mensagem `Servidor iniciado na porta ????...` (onde `????` é a porta que o servidor está rodando);
+* Chame o comando: `java -jar otkserver-mk-i.jar` (para a versão `mk-i`, por exemplo);
+* Espere a mensagem do Spring informando quando a aplicação terminou de inicializar;
 * Pronto, seu OTServer já está rodando!
 
 ###### Client local (sem IP Changer)
@@ -62,11 +60,6 @@ O projeto compilado pesa, aproximadamente, 5MB.
 127.0.0.1 server2.tibia.com
 ```
 
-* O Mock criado na inicialização do servidor gera apenas uma conta:
-
-```
-Account Number: 123
-Password: abc
-```
+* Atualmente qualquer conta e senha funcionam;
 
 * Agora basta abrir o Tibia e tentar se logar.

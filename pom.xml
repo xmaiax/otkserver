@@ -1,32 +1,75 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-						http://maven.apache.org/maven-v4_0_0.xsd">
+            http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>otkserver</groupId>
+	<groupId>com.github.xmaiax</groupId>
 	<artifactId>otkserver</artifactId>
 	<packaging>jar</packaging>
-	<version>pre-alpha</version>
+	<version>mk-i</version>
+	<name>OTKServer</name>
+	<description>Open Tibia Kotlin Server</description>
 
 	<properties>
 		<jdk.version>1.8</jdk.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<release.dir>RELEASE</release.dir>
-		<dependency.dir>lib</dependency.dir>
-		<main.class>${project.groupId}.Servidor</main.class>
-		<kotlin.version>1.3.41</kotlin.version>
-		<mina.version>2.1.3</mina.version>
-		<h2.version>1.4.199</h2.version>
-		<ormlite.version>5.1</ormlite.version>
-		<log4j.version>1.2.17</log4j.version>
+		<main.class>${project.groupId}.App</main.class>
+		<output.directory>RELEASE/</output.directory>
+		<kotlin.version>1.3.61</kotlin.version>
+		<spring-boot.version>2.2.4.RELEASE</spring-boot.version>
+		<webjar-locator.version>0.38</webjar-locator.version>
+		<angularjs.version>1.7.9</angularjs.version>
+		<bootstrap.version>4.4.1</bootstrap.version>
+		<jquery.version>3.4.1</jquery.version>
+		<swagger.version>2.9.2</swagger.version>
 		<maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
-		<maven-jar-plugin.version>3.1.2</maven-jar-plugin.version>
+		<maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
+		<maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
 	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.jetbrains.kotlin</groupId>
+				<artifactId>kotlin-project</artifactId>
+				<version>${kotlin.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-dependencies</artifactId>
+				<version>${spring-boot.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<profiles>
+		<profile>
+			<id>local</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<spring.profiles.active>local</spring.profiles.active>
+			</properties>
+		</profile>
+		<profile>
+			<id>prod</id>
+			<properties>
+				<spring.profiles.active>prod</spring.profiles.active>
+			</properties>
+		</profile>
+	</profiles>
 
 	<build>
 
+		<finalName>../${output.directory}${project.artifactId}-${project.version}</finalName>
 		<sourceDirectory>src/main/kotlin</sourceDirectory>
+
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
@@ -40,6 +83,14 @@
 				<groupId>org.jetbrains.kotlin</groupId>
 				<artifactId>kotlin-maven-plugin</artifactId>
 				<version>${kotlin.version}</version>
+				<configuration>
+					<args>
+						<arg>-Xjsr305=strict</arg>
+					</args>
+					<compilerPlugins>
+						<plugin>spring</plugin>
+					</compilerPlugins>
+				</configuration>
 				<executions>
 					<execution>
 						<id>compile</id>
@@ -47,10 +98,35 @@
 							<goal>compile</goal>
 						</goals>
 					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.jetbrains.kotlin</groupId>
+						<artifactId>kotlin-maven-allopen</artifactId>
+						<version>${kotlin.version}</version>
+					</dependency>
+					<dependency>
+						<groupId>org.jetbrains.kotlin</groupId>
+						<artifactId>kotlin-maven-noarg</artifactId>
+						<version>${kotlin.version}</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>${spring-boot.version}</version>
+				<configuration>
+					<mainClass>${main.class}</mainClass>
+					<layout>ZIP</layout>
+				</configuration>
+				<executions>
 					<execution>
-						<id>test-compile</id>
+						<id>create-fatjar</id>
+						<phase>package</phase>
 						<goals>
-							<goal>test-compile</goal>
+							<goal>repackage</goal>
 						</goals>
 					</execution>
 				</executions>
@@ -68,35 +144,42 @@
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>copy-dependencies</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${release.dir}/${dependency.dir}</outputDirectory>
-						</configuration>
-					</execution>
-				</executions>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven-surefire-plugin.version}</version>
+				<configuration>
+					<skipTests>false</skipTests>
+				</configuration>
 			</plugin>
 
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>${maven-jar-plugin.version}</version>
+				<artifactId>maven-clean-plugin</artifactId>
+				<version>${maven-clean-plugin.version}</version>
 				<configuration>
-					<outputDirectory>${release.dir}</outputDirectory>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<classpathPrefix>${dependency.dir}/</classpathPrefix>
-							<mainClass>${main.class}</mainClass>
-						</manifest>
-					</archive>
+					<followSymlinks>false</followSymlinks>
+					<filesets>
+						<fileset>
+							<directory>${output.directory}</directory>
+							<includes>
+								<include>*.jar.original</include>
+							</includes>
+						</fileset>
+						<fileset>
+							<directory>${basedir}/</directory>
+							<includes>
+								<include>*.log</include>
+							</includes>
+						</fileset>
+					</filesets>
 				</configuration>
+				<executions>
+					<execution>
+						<id>delete-original-jar</id>
+						<phase>package</phase>
+						<goals>
+							<goal>clean</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 
 		</plugins>
@@ -107,32 +190,69 @@
 
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
-			<artifactId>kotlin-stdlib</artifactId>
-			<version>${kotlin.version}</version>
+			<artifactId>kotlin-stdlib-jdk8</artifactId>
 		</dependency>
 
 		<dependency>
-		    <groupId>org.apache.mina</groupId>
-		    <artifactId>mina-core</artifactId>
-		    <version>${mina.version}</version>
+			<groupId>org.jetbrains.kotlin</groupId>
+			<artifactId>kotlin-reflect</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-			<version>${h2.version}</version>
+			<scope>runtime</scope>
 		</dependency>
 
 		<dependency>
-			<groupId>com.j256.ormlite</groupId>
-			<artifactId>ormlite-jdbc</artifactId>
-			<version>${ormlite.version}</version>
+			<groupId>com.fasterxml.jackson.module</groupId>
+			<artifactId>jackson-module-kotlin</artifactId>
 		</dependency>
 
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>${log4j.version}</version>
+			<groupId>org.webjars</groupId>
+			<artifactId>webjars-locator</artifactId>
+			<version>${webjar-locator.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>angularjs</artifactId>
+			<version>${angularjs.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>bootstrap</artifactId>
+			<version>${bootstrap.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jquery</artifactId>
+			<version>${jquery.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>${swagger.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger-ui</artifactId>
+			<version>${swagger.version}</version>
 		</dependency>
 
 	</dependencies>
