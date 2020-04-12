@@ -5,42 +5,42 @@ import org.slf4j.LoggerFactory
 class SpawnProtocol {
 
   companion object {
-    private val logger = LoggerFactory.getLogger(SpawnProtocol::class.java)
-    private val PLAYER_IDENTIFIER = 0x0fffffff
-    private val CLIENT_RENDER_CODE = 0x32
-    private val ERROR_REPORT_FLAG = 0x00
-    private val CODE_MAP_INFO = 0x64
-    private val CODE_INVENTORY_SLOT_FILLED = 0x78
-    private val CODE_INVENTORY_SLOT_EMPTY = 0x79
-    private val CODE_STATS = 0xa0
-    private val CODE_SKILLS = 0xa1
-    private val CODE_SPAWN_EFFECT = 0x83
-    private val CODE_AMBIENT_LIGHT = 0x82
+    val logger = LoggerFactory.getLogger(SpawnProtocol::class.java)
+    val PLAYER_IDENTIFIER = 0x0fffffff
+    val CLIENT_RENDER_CODE = 0x32
+    val ERROR_REPORT_FLAG = 0x00
+    val CODE_MAP_INFO = 0x64
+    val CODE_INVENTORY_SLOT_FILLED = 0x78
+    val CODE_INVENTORY_SLOT_EMPTY = 0x79
+    val CODE_STATS = 0xa0
+    val CODE_SKILLS = 0xa1
+    val CODE_SPAWN_EFFECT = 0x83
+    val CODE_AMBIENT_LIGHT = 0x82
 
-    private fun createSpawnPacket(characterIdentifier: Long) = Packet()
+    fun createSpawnPacket(characterIdentifier: Long) = Packet()
       .writeByte(Packet.PROCESSING_LOGIN_CODE_OK)
       .writeInt32(PLAYER_IDENTIFIER + characterIdentifier)
       .writeInt16(CLIENT_RENDER_CODE).writeByte(ERROR_REPORT_FLAG)
 
-    private fun writePosition(packet: Packet, position: Position) = packet
+    fun writePosition(packet: Packet, position: Position) = packet
       .writeInt16(position.x).writeInt16(position.y)
       .writeByte(position.z)
 
-    private fun writeLight(packet: Packet, light: Light) = packet
+    fun writeLight(packet: Packet, light: Light) = packet
       .writeByte(light.radius).writeByte(light.color)
 
-    private fun writeAmbientLight(packet: Packet, light: Light): Packet {
+    fun writeAmbientLight(packet: Packet, light: Light): Packet {
       packet.writeByte(CODE_AMBIENT_LIGHT)
       return writeLight(packet, light)
     }
 
-    private fun writeSkill(packet: Packet, skill: Skill) = packet
+    fun writeSkill(packet: Packet, skill: Skill) = packet
       .writeByte(skill.level).writeByte(skill.percent)
 
-    private fun writeInventorySlot(packet: Packet, slot: Slot) =
+    fun writeInventorySlot(packet: Packet, slot: Slot) =
       packet.writeByte(CODE_INVENTORY_SLOT_EMPTY).writeByte(slot.code)
 
-    private fun writeInventory(packet: Packet): Packet {
+    fun writeInventory(packet: Packet): Packet {
       this.writeInventorySlot(packet, Slot.HEAD)
       this.writeInventorySlot(packet, Slot.NECK)
       this.writeInventorySlot(packet, Slot.BACKPACK)
@@ -53,7 +53,7 @@ class SpawnProtocol {
       return this.writeInventorySlot(packet, Slot.EXTRA)
     }
 
-    private fun writeStats(packet: Packet, player: Player) {
+    fun writeStats(packet: Packet, player: Player) {
       packet.writeByte(CODE_STATS)
       packet.writeInt16(player.life)
       packet.writeInt16(player.maxLife)
@@ -68,7 +68,7 @@ class SpawnProtocol {
       packet.writeByte(player.soul)
     }
 
-    private fun writeSkills(packet: Packet, player: Player): Packet {
+    fun writeSkills(packet: Packet, player: Player): Packet {
       fun writeSkill(skill: Skill) =
         packet.writeByte(skill.level).writeByte(skill.percent)
       packet.writeByte(CODE_SKILLS)
@@ -81,14 +81,14 @@ class SpawnProtocol {
       return writeSkill(player.fishing)
     }
 
-    private fun writeSpawnEffect(packet: Packet,
+    fun writeSpawnEffect(packet: Packet,
         position: Position, fx: FX): Packet {
       packet.writeByte(CODE_SPAWN_EFFECT)
       return this.writePosition(packet, position)
         .writeByte(fx.code)
     }
 
-    private fun writeMapInfo(packet: Packet, player: Player) {
+    fun writeMapInfo(packet: Packet, player: Player) {
       packet.writeByte(CODE_MAP_INFO)
       this.writePosition(packet, player.position)
       for(i in 0..251) {
@@ -105,17 +105,8 @@ class SpawnProtocol {
           packet.writeByte(0)
           packet.writeByte(0)
           packet.writeByte(16)
-
-          packet.writeByte(4)
-          packet.writeByte(0)
-
-          packet.writeByte(77)
-          packet.writeByte(97)
-          packet.writeByte(105)
-          packet.writeByte(97)
-
-          packet.writeByte(50)
-
+          packet.writeString(player.name)
+          packet.writeByte(player.life * 100 / player.maxLife)
           packet.writeByte(2)
           packet.writeByte(128)
           packet.writeByte(10)

@@ -110,7 +110,7 @@ enum class Slot(val code: Byte) {
 }
 
 enum class ChatType(val code: Byte) {
-  NORMAL(0x01), WHISPER(0x02), YELL(0x03),
+  SAY(0x01), WHISPER(0x02), YELL(0x03),
   YELLOW_CHAT(0x05), REPORT_CHANNEL(0x06),
   REPORT_RESPONSE(0x07), REPORT(0x08),
   BROADCAST(0x09), PRIVATE(0x04), RED_CHANNEL(0x0a),

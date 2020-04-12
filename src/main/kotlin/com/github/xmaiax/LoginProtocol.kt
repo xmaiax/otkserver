@@ -33,8 +33,8 @@ enum class LoginRequestType(private val code: Byte) {
       val filter = LoginRequestType.values().filter {
         it.code == code.toByte()
       }
-      return if(filter.isNotEmpty()) filter.first()
-        else LoginRequestType.INVALID
+      return if(filter.isNotEmpty())
+        filter.first() else INVALID
     }
   }
 }
