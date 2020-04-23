@@ -2,6 +2,8 @@ package com.github.xmaiax
 
 import java.nio.ByteBuffer
 import java.nio.channels.SocketChannel
+import java.nio.channels.Selector
+import java.nio.channels.SelectionKey
 
 data class Packet(
   private var size: Int = 0,
@@ -67,11 +69,11 @@ data class Packet(
     ((this.size and 0xff00) shr 8).toByte()
   ) + buffer
 
-  fun send(socketChannel: SocketChannel) {
+  fun send(socketChannel: SocketChannel, selector: Selector) {
     val bufferTemp = ByteBuffer.allocate(Packet.MAX_SIZE)
-    bufferTemp.clear()
     bufferTemp.put(this.bufferWithSize())
     bufferTemp.flip()
+    socketChannel.register(selector, SelectionKey.OP_WRITE)
     while(bufferTemp.hasRemaining())
       socketChannel.write(bufferTemp)
   }

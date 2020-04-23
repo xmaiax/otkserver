@@ -3,6 +3,8 @@ package com.github.xmaiax
 import org.slf4j.LoggerFactory
 import java.nio.ByteBuffer
 import java.nio.channels.SocketChannel
+import java.nio.channels.Selector
+import java.nio.channels.SelectionKey
 
 class InGameProtocol {
 
@@ -10,11 +12,12 @@ class InGameProtocol {
 
     private val logger = LoggerFactory.getLogger(InGameProtocol::class.java)
 
-    fun loop(socketChannel: SocketChannel, player: Player) {
+    fun loop(socketChannel: SocketChannel, selector: Selector, player: Player) {
+      socketChannel.register(selector, SelectionKey.OP_READ)
       val buffer = ByteBuffer.allocate(Packet.MAX_SIZE)
       val size = socketChannel.read(buffer)
       if(size > 0) {
-        buffer.position(0)
+        buffer.clear()
         val packetSize = Packet.readInt16(buffer)
         val rawType = Packet.readByte(buffer)
         logger.debug("New in-game packet [Size=$packetSize, Type=0x${"%02x".format(rawType)}]")
@@ -34,7 +37,7 @@ class InGameProtocol {
               packet.writeByte(chatType.code)
               SpawnProtocol.writePosition(packet, player.position)
               packet.writeString(message)
-              packet.send(socketChannel)
+              packet.send(socketChannel, selector)
             }
           }
           else -> {
@@ -42,7 +45,6 @@ class InGameProtocol {
           }
         }
       }
-      buffer.clear()
     }
 
   }
