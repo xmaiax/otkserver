@@ -17,20 +17,19 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2
 @Profile("!prod")
 @Configuration
 @EnableSwagger2
-class SwaggerConfig(
+open class SwaggerConfig(
   @Value("\${info.app.name}") val name: String,
   @Value("\${info.app.description}") val description: String,
   @Value("\${info.app.version}") val version: String
-) {
+) : Docket(DocumentationType.SWAGGER_2) {
 
-  @Bean
-  fun docket() = Docket(DocumentationType.SWAGGER_2)
-    .select().apis(
+  init {
+    this.select().apis(
       RequestHandlerSelectors.basePackage(
         SwaggerConfig::class.java.getPackage().getName()
       )
     )
-    .paths(PathSelectors.regex("/.*"))
+    .paths(PathSelectors.any())
     .build().apiInfo(
       ApiInfoBuilder()
         .title(this.name)
@@ -55,7 +54,7 @@ class SwaggerConfig(
       ArrayList(
         arrayOf<ResponseMessage>(
           ResponseMessageBuilder().code(400)
-            .message("We can't understand what you tried to send...").build(),
+            .message("Unable to understand what you tried to send...").build(),
           ResponseMessageBuilder().code(404)
             .message("Are you connected to the internet?").build(),
           ResponseMessageBuilder().code(500)
@@ -63,5 +62,6 @@ class SwaggerConfig(
         ).toList()
       )
     )
+  }
 
 }

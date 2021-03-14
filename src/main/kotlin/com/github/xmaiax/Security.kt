@@ -4,7 +4,7 @@ class MD5Utils {
   companion object {
     private val messageDigest =
       java.security.MessageDigest.getInstance("MD5")
-    private val SALT = "9b783618935148a5fd" //FIXME Change this magic numbers
+    private val SALT = "9b783618935148a5fd" //FIXME Change these magic numbers
     fun str2md5(password: String) =
       java.math.BigInteger(1,
         messageDigest.digest(

@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Value
 import java.nio.ByteBuffer
 
 @Component
-class Server(
+open class Server(
   @Value("\${otserver.host}") val host: String,
   @Value("\${otserver.port}") val port: Int,
   @Value("\${otserver.version}") val version: Int,

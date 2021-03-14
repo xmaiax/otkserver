@@ -57,7 +57,7 @@ interface ActiveRecord {
 }
 
 @Repository
-class CommonRepository(
+open class CommonRepository(
   @PersistenceContext val entityManager: EntityManager,
   @Autowired val applicationContext: ApplicationContext,
   @Value("\${database.default.rowsperquery}") val defaultRowsPerQuery: Int

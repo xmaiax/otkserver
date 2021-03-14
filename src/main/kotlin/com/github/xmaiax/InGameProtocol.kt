@@ -15,8 +15,7 @@ class InGameProtocol {
     fun loop(socketChannel: SocketChannel, selector: Selector, player: Player) {
       socketChannel.register(selector, SelectionKey.OP_READ)
       val buffer = ByteBuffer.allocate(Packet.MAX_SIZE)
-      val size = socketChannel.read(buffer)
-      if(size > 0) {
+      if(socketChannel.read(buffer) > 0) {
         buffer.clear()
         val packetSize = Packet.readInt16(buffer)
         val rawType = Packet.readByte(buffer)
