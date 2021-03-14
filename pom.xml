@@ -19,10 +19,10 @@
     <output.directory>RELEASE/</output.directory>
     <kotlin.version>1.3.61</kotlin.version>
     <spring-boot.version>2.2.4.RELEASE</spring-boot.version>
-    <webjar-locator.version>0.38</webjar-locator.version>
-    <angularjs.version>1.7.9</angularjs.version>
-    <bootstrap.version>4.4.1</bootstrap.version>
-    <jquery.version>3.4.1</jquery.version>
+    <webjar-locator.version>0.40</webjar-locator.version>
+    <angularjs.version>1.8.0</angularjs.version>
+    <bootstrap.version>4.5.0</bootstrap.version>
+    <jquery.version>3.5.1</jquery.version>
     <swagger.version>2.9.2</swagger.version>
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
     <maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
@@ -222,7 +222,6 @@
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
-      <scope>runtime</scope>
     </dependency>
 
     <dependency>
