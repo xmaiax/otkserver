@@ -17,6 +17,15 @@ open class App: WebMvcConfigurer {
 
   companion object {
     @JvmStatic fun main(args: Array<String>) { run(App::class.java, *args) }
+    val logger = org.slf4j.LoggerFactory.getLogger(App::class.java)
+  }
+
+  @org.springframework.beans.factory.annotation.Value("\${server.port}")
+  var webServerPort: Int = 0
+
+  @javax.annotation.PostConstruct
+  fun startedMessage() {
+    logger.info("Rest service starting in port: ${this.webServerPort}")
   }
 
 }
