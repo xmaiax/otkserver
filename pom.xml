@@ -12,6 +12,17 @@
   <name>OTKServer</name>
   <description>Open Tibia Kotlin Server</description>
 
+  <url>https://github.com/xmaiax/otkserver.git</url>
+  <developers>
+    <developer>
+      <name>Maia</name>
+      <email>felipe_m92@live.com</email>
+      <roles>
+        <role>Creator</role>
+      </roles>
+    </developer>
+  </developers>
+
   <properties>
     <jdk.version>1.8</jdk.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
