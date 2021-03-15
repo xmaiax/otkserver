@@ -28,39 +28,41 @@ open class Server(
 
   val selector = Selector.open()
 
-  fun newConnectedClient(socketChannel: SocketChannel) {
+  fun newConnectedClient(socketChannel: SocketChannel, key: SelectionKey) {
+
     val buffer = ByteBuffer.allocate(Packet.MAX_SIZE)
     socketChannel.read(buffer)
     buffer.position(0)
     val packetSize = Packet.readInt16(buffer)
     if(packetSize < 1) return
     val rawType = Packet.readByte(buffer)
-    logger.debug("New received packet [Size=$packetSize, Type=0x${"%02x".format(rawType)}]")
-    when(LoginRequestType.fromCode(rawType)) {
-      LoginRequestType.LOAD_CHARACTER_LIST -> {
-        val loginAttemp = LoginProtocol(buffer, this.version, false)
-        logger.info("Loading character list: $loginAttemp")
-        loginAttemp.createLoginPacket(this.host, this.port,
-          MOTD(this.motd)).send(socketChannel, this.selector)
-      }
-      LoginRequestType.LOGIN_SUCCESS -> {
-        val loginSuccess = LoginProtocol(buffer, this.version, true)
-        logger.info("Login success: $loginSuccess")
-        loginSuccess.selectedCharacterName?.let { name ->
-          DatabaseCharacter(id = 1, name = name).toPlayer()?.let { player ->
-            SpawnProtocol.successfulLoginPacket(player)
-              .send(socketChannel, this.selector)
-            Thread({
-              while(socketChannel.isConnected() && socketChannel.isOpen())
-                InGameProtocol.loop(socketChannel, selector, player)
-              socketChannel.close()
-            }).start()
-          } ?: run {
-            //TODO: Return error message
+    var player: Player? = if(key.attachment() != null) key.attachment() as Player else null
+    logger.debug("New received packet [Size=$packetSize, Type=0x${"%02x".format(rawType)}] from ${
+      player?.let { "character ${it.name}" } ?: run { "not logged player" }}.")
+    player?.let {
+      InGameProtocol.loop(socketChannel, it, buffer, Action.fromCode(rawType))
+    } ?: run {
+      when(LoginRequestType.fromCode(rawType)) {
+        LoginRequestType.LOAD_CHARACTER_LIST -> {
+          val loginAttemp = LoginProtocol(buffer, this.version, false)
+          logger.info("Loading character list: $loginAttemp")
+          loginAttemp.createLoginPacket(this.host, this.port,
+            MOTD(this.motd)).send(socketChannel)
+        }
+        LoginRequestType.LOGIN_SUCCESS -> {
+          val loginSuccess = LoginProtocol(buffer, this.version, true)
+          logger.info("Login success: $loginSuccess")
+          loginSuccess.selectedCharacterName?.let { name ->
+            DatabaseCharacter(id = 1, name = name).toPlayer()?.let { loggedPlayer ->
+              key.attach(loggedPlayer)
+              SpawnProtocol.successfulLoginPacket(loggedPlayer).send(socketChannel)
+            } ?: run {
+              //TODO: Return error message
+            }
           }
         }
+        else -> logger.debug("Invalid packet received in login...")
       }
-      else -> logger.debug("Invalid packet received in login...")
     }
   }
 
@@ -76,23 +78,23 @@ open class Server(
         val selectedKeysIterator = this.selector.selectedKeys().iterator()
         while (selectedKeysIterator.hasNext()) {
           val key = selectedKeysIterator.next()
+          selectedKeysIterator.remove()
           try {
             if (key.isAcceptable())
               serverSocketChannel.accept()?.let { socketChannel ->
                 socketChannel.configureBlocking(false)
-                socketChannel.register(this.selector, SelectionKey.OP_READ)
+                socketChannel.register(this.selector,
+                  SelectionKey.OP_READ or SelectionKey.OP_WRITE)
               }
             else if (key.isReadable()) {
               val socketChannel = key.channel() as SocketChannel
-              socketChannel.configureBlocking(false)
-              try{ this.newConnectedClient(socketChannel) }
+              try{ this.newConnectedClient(socketChannel, key) }
               catch(e: IOException) { socketChannel.close() }
             }
           }
           catch(e: Exception) {
-            logger.error("Error", e)
+            logger.error("Error on handling packets: ${e.message}", e)
           }
-          selectedKeysIterator.remove()
         }
       }
     }).start()

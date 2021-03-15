@@ -69,13 +69,15 @@ data class Packet(
     ((this.size and 0xff00) shr 8).toByte()
   ) + buffer
 
-  fun send(socketChannel: SocketChannel, selector: Selector) {
+  fun send(socketChannel: SocketChannel, isLogged: Boolean = false) {
     val bufferTemp = ByteBuffer.allocate(Packet.MAX_SIZE)
     bufferTemp.put(this.bufferWithSize())
     bufferTemp.flip()
-    socketChannel.register(selector, SelectionKey.OP_WRITE)
     while(bufferTemp.hasRemaining())
       socketChannel.write(bufferTemp)
+    if(isLogged) {
+      System.err.println("IS IT WORKING?")
+    }
   }
 
   override fun toString() =
