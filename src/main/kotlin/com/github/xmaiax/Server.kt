@@ -85,7 +85,7 @@ open class Server(
                 socketChannel.register(this.selector,
                   SelectionKey.OP_READ or SelectionKey.OP_WRITE)
               }
-            else if (key.isReadable()) {
+            else if (key.isReadable() || key.isWritable()) {
               val socketChannel = key.channel() as SocketChannel
               try{ this.newConnectedClient(socketChannel, key) }
               catch(e: IOException) { socketChannel.close() }
