@@ -29,7 +29,6 @@ open class Server(
   val selector = Selector.open()
 
   fun newConnectedClient(socketChannel: SocketChannel, key: SelectionKey) {
-
     val buffer = ByteBuffer.allocate(Packet.MAX_SIZE)
     socketChannel.read(buffer)
     buffer.position(0)
